@@ -1,0 +1,49 @@
+plugins {
+    id 'java'
+}
+
+group 'sk.spedry.weebbotcollector'
+version '1.0'
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    junitVersion = '5.7.2'
+}
+
+sourceCompatibility = '11'
+targetCompatibility = '11'
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+dependencies {
+    // JUNIT
+    testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
+    // PIRCBOTX
+    implementation("com.github.pircbotx:pircbotx:2.2") {
+        exclude(group: "org.slf4j", module: "slf4j-api")
+    }
+    // LOG4J
+    implementation ("org.apache.logging.log4j:log4j-api:2.14.1")
+    implementation ("org.apache.logging.log4j:log4j-core:2.14.1")
+    // LOMBOK
+    compileOnly("org.projectlombok:lombok:1.18.20")
+    annotationProcessor("org.projectlombok:lombok:1.18.20")
+    // GSON
+    implementation 'com.google.code.gson:gson:2.8.8'
+}
+
+allprojects {
+    repositories {
+        maven { url 'https://jitpack.io' }
+    }
+}
+
+test {
+    useJUnitPlatform()
+}
