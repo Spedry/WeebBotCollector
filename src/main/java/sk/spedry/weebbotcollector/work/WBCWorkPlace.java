@@ -58,7 +58,7 @@ public class WBCWorkPlace extends WBCMessageSender{
         return new JsonArray();
     }
 
-    public JsonObject getJsonObject(String pathTo) {
+    private JsonObject getJsonObject(String pathTo) {
         try {
             File file = new File(pathTo);
             if (!file.createNewFile()) {
@@ -82,7 +82,7 @@ public class WBCWorkPlace extends WBCMessageSender{
         return new JsonObject();
     }
 
-    private ServerList getServerList(String listFile) {
+    public ServerList getServerList(@NonNull String listFile) {
         ServerList serverList = new ServerList();
         JsonArray jsonArray = getJsonArray(listFile);
         Iterator<JsonElement> iterator = jsonArray.iterator();
@@ -96,7 +96,7 @@ public class WBCWorkPlace extends WBCMessageSender{
         return serverList;
     }
 
-    private AnimeList getAnimeList(String listFile) {
+    public AnimeList getAnimeList(String listFile) {
         AnimeList animeList = new AnimeList();
         JsonArray jsonArray = getJsonArray(listFile);
         Iterator<JsonElement> iterator = jsonArray.iterator();
@@ -109,6 +109,12 @@ public class WBCWorkPlace extends WBCMessageSender{
         }
         return animeList;
     }
+
+
+    /**
+     * Methods that communicate with client
+     *
+     */
 
     public void addServer(WCMessage wcMessage) {
         try {
