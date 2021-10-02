@@ -21,6 +21,8 @@ tasks.withType(JavaCompile) {
 }
 
 dependencies {
+    implementation 'org.projectlombok:lombok:1.18.18'
+
     // JUNIT
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
@@ -36,6 +38,10 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok:1.18.20")
     // GSON
     implementation 'com.google.code.gson:gson:2.8.8'
+    // SLF4J
+    // https://mvnrepository.com/artifact/org.slf4j/slf4j-log4j12
+    testImplementation group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.32'
+
 }
 
 allprojects {
