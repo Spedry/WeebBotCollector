@@ -5,7 +5,9 @@ import org.apache.logging.log4j.Logger;
 import org.pircbotx.Configuration;
 import org.pircbotx.PircBotX;
 import org.pircbotx.exception.IrcException;
+import sk.spedry.weebbotcollector.ircbot.IRCBotCommands;
 import sk.spedry.weebbotcollector.ircbot.IRCBotListener;
+import sk.spedry.weebbotcollector.work.WBCWorkPlace;
 
 import java.io.IOException;
 
@@ -14,6 +16,8 @@ public class MultipleServersIRCBot implements Runnable {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final PircBotX bot;
+    private final IRCBotCommands botCommands;
+    private final IRCBotListener botListener;
 
     private final String userDir = System.getProperty("user.dir");
 
@@ -39,6 +43,8 @@ public class MultipleServersIRCBot implements Runnable {
         this.channelName = "#NIBL";
         this.downloadFolder = userDir + "tempDownloads";
         bot = new PircBotX(configureBot());
+        botCommands = new IRCBotCommands(bot);
+        botListener = new IRCBotListener(downloadFolder, null, botCommands);
     }
 
     public final Configuration configureBot() {
@@ -49,7 +55,7 @@ public class MultipleServersIRCBot implements Runnable {
                 .addServer(serverName)
                 .addAutoJoinChannel(channelName)
                 .setAutoReconnect(true)
-                .addListener(new IRCBotListener(downloadFolder))
+                .addListener(botListener)
                 //TODO TEST ON RASPBERRY PI 4 8GB
                 .setDccTransferBufferSize(1024*5)
                 .setAutoReconnectDelay(() -> 60)
