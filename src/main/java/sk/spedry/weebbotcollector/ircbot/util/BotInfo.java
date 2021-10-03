@@ -11,4 +11,11 @@ public class BotInfo {
     private String channelName;
     @Getter
     private String downloadFolder;
+    // TODO DELETE
+    public BotInfo(String userName, String serverName, String channelName, String downloadFolder) {
+        this.userName = userName;
+        this.serverName = serverName;
+        this.channelName = channelName;
+        this.downloadFolder = downloadFolder;
+    }
 }
