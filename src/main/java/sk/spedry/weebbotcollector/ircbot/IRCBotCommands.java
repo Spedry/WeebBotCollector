@@ -14,6 +14,9 @@ public class IRCBotCommands {
         this.bot = bot;
     }
 
-
+    public void sendMessage(String target, String message) {
+        logger.info("Sending message: " + message + " to: " + target);
+        bot.sendIRC().message(target, message);
+    }
 
 }
