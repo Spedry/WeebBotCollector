@@ -2,6 +2,7 @@ package sk.spedry.weebbotcollector.work;
 
 import com.google.gson.*;
 import com.google.gson.stream.JsonWriter;
+import lombok.Getter;
 import lombok.NonNull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,7 +19,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class WBCWorkPlace extends WBCMessageSender{
+public class WBCWorkPlace extends WBCMessageSender {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -26,6 +27,7 @@ public class WBCWorkPlace extends WBCMessageSender{
     private final String propertiesFile = userDir + "/properties/";
     private final String jsonListFile = propertiesFile + "jsonListFile/";
     private final String serverListFile = jsonListFile + "serverList.json";
+    @Getter
     private final String animeListFile = jsonListFile + "animeList.json";
 
     public WBCWorkPlace(PrintWriter out) {
