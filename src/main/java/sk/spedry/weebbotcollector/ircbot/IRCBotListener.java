@@ -3,11 +3,12 @@ package sk.spedry.weebbotcollector.ircbot;
 import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.message.Message;
 import org.pircbotx.dcc.ReceiveFileTransfer;
 import org.pircbotx.hooks.ListenerAdapter;
 import org.pircbotx.hooks.events.IncomingFileTransferEvent;
 import org.pircbotx.hooks.events.MessageEvent;
+import sk.spedry.weebbotcollector.util.WCMAnime;
+import sk.spedry.weebbotcollector.work.WBCWorkPlace;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,16 +19,43 @@ public class IRCBotListener extends ListenerAdapter {
 
     @Setter
     private String downloadFolder;
-
-    public IRCBotListener(String downloadFolder) {
+    private WBCWorkPlace workPlace;
+    private IRCBotCommands botCommands;
+    public IRCBotListener(String downloadFolder, WBCWorkPlace workPlace, IRCBotCommands botCommands) {
         this.downloadFolder = downloadFolder;
+        this.workPlace = workPlace;
+        this.botCommands = botCommands;
     }
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Override
     public void onMessage(MessageEvent event) {
-        logger.info("RECEIVED MESSAGE: " + event.getMessage());
+        final String receivedMessage = event.getMessage();
+        String downloadMessage = null;
+        if (logger.isDebugEnabled())
+            logger.debug("Received message: " + receivedMessage);
+
+        if (receivedMessage.contains("/MSG")) {
+            logger.info("MSG: " + receivedMessage);
+
+            // got through all anime entries in jsonListFile/animeList.json
+            for (WCMAnime anime : workPlace.getAnimeList(workPlace.getAnimeListFile()).getAnimeList()) {
+                // if anime quality matches
+                if (receivedMessage.contains(anime.getTypeOfQuality())) {
+                    // if anime name matches
+                    if (receivedMessage.contains(anime.getAnimeName())) {
+                        // TODO option to choose server
+                        downloadMessage = receivedMessage.substring(receivedMessage.lastIndexOf("/MSG") + 4);
+                        break;
+                    }
+                }
+            }
+            if (downloadMessage != null) {
+                String[] spliced = downloadMessage.split("\\|");
+                botCommands.sendMessage(spliced[0], spliced[1]);
+            }
+        }
     }
 
     @Override
