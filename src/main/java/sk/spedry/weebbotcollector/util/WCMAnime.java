@@ -12,7 +12,7 @@ public class WCMAnime {
     @Getter
     private String typeOfQuality;
     @Getter
-    private String serverName;
+    private String botName;
     @Getter
-    private String numberOfEpisode;
+    private String numberOfEpisodes;
 }
