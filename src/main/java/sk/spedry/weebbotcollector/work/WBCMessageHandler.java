@@ -3,6 +3,8 @@ package sk.spedry.weebbotcollector.work;
 import com.google.gson.Gson;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import sk.spedry.weebbotcollector.ircbot.WBCService;
+import sk.spedry.weebbotcollector.ircbot.util.BotInfo;
 import sk.spedry.weebbotcollector.util.WCMessage;
 
 import java.io.IOException;
@@ -18,6 +20,7 @@ public class WBCMessageHandler {
     private final Socket socket;
     private final LinkedBlockingDeque<WCMessage> WCMessageQueue;
     private final WBCWorkPlace work;
+    private final WBCService service;
 
     public WBCMessageHandler(Socket socket) {
         this.socket = socket;
@@ -33,6 +36,10 @@ public class WBCMessageHandler {
             logger.error("Couldn't get output stream", e);
         }
         this.work = workPlace;
+
+        service = new WBCService();
+        service.createBot(new BotInfo("Spedry", "irc.rizon.net", "#NIBL", "/media/spedry/RaspCloud/CloudShare"),workPlace);
+
     }
 
     public void messageHandler() {
