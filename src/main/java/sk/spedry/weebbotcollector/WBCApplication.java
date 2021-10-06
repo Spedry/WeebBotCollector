@@ -11,6 +11,9 @@ import java.util.Date;
 
 public class WBCApplication {
 
+    //netstat -ano | findstr :<PORT> == netstat -ano | findstr :50000
+    //taskkill /PID <PID> /F == taskkill /PID XXXXXX /F
+
     private static final int port = 50000;
 
     private final Logger logger = LogManager.getLogger(this.getClass());
