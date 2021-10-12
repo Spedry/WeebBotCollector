@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="INFO">
+<Configuration status="TRACE">
     <Properties>
         <Property name="log-path">logs</Property>
     </Properties>
@@ -14,7 +14,7 @@
     </Appenders>
 
     <Loggers>
-        <Root level="trace">
+        <Root level="debug">
             <AppenderRef ref="fileLogger-weebBotCollector"/>
             <AppenderRef ref="console" />
         </Root>
