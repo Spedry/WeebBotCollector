@@ -1,14 +1,12 @@
 package sk.spedry.weebbotcollector.work;
 
-import com.google.gson.Gson;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import sk.spedry.weebbotcollector.ircbot.WBCService;
-import sk.spedry.weebbotcollector.ircbot.util.BotInfo;
 import sk.spedry.weebbotcollector.util.WCMessage;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Writer;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -18,28 +16,27 @@ public class WBCMessageHandler {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final Socket socket;
+    private final WBCMessageReceiver messageReceiver;
     private final LinkedBlockingDeque<WCMessage> WCMessageQueue;
     private final WBCWorkPlace work;
-    private final WBCService service;
 
-    public WBCMessageHandler(Socket socket) {
+    public WBCMessageHandler(Socket socket, WBCWorkPlace work) {
+        logger.trace("Creating Message handler");
         this.socket = socket;
-        WBCMessageReceiver messageReceiver = new WBCMessageReceiver(socket);
+        this.messageReceiver = new WBCMessageReceiver(socket);
+        this.work = work;
         Thread wbcMessageReceiverThread = new Thread(messageReceiver);
         wbcMessageReceiverThread.setDaemon(true);
+        wbcMessageReceiverThread.setName(messageReceiver.getClass().getSimpleName());
         wbcMessageReceiverThread.start();
         this.WCMessageQueue = messageReceiver.getMessageQueue();
-        WBCWorkPlace workPlace = null;
+        PrintWriter printWriter = null;
         try {
-            workPlace = new WBCWorkPlace(new PrintWriter(socket.getOutputStream(), true, StandardCharsets.UTF_8));
+            printWriter = new PrintWriter(socket.getOutputStream(), true, StandardCharsets.UTF_8);
         } catch (IOException e) {
-            logger.error("Couldn't get output stream", e);
+            e.printStackTrace();
         }
-        this.work = workPlace;
-
-        service = new WBCService();
-        service.createBot(new BotInfo("Spedry", "irc.rizon.net", "#NIBL", "/media/spedry/RaspCloud/CloudShare"),workPlace);
-
+        work.setOut(printWriter);
     }
 
     public void messageHandler() {
@@ -49,11 +46,13 @@ public class WBCMessageHandler {
                 logger.debug("The message id is: " + wcMessage.getMessageId());
                 logger.debug("The content of WCMessage body is: " + wcMessage.getMessageBody());
                 switch (wcMessage.getMessageId()) {
-                    case "addServer":
-                        work.addServer(wcMessage);
+                    case "setSetup":
+                        work.setSetup(wcMessage);
+                    case "getSetup":
+                        work.getSetup(wcMessage);
                         break;
-                    case "getServerList":
-                        work.getServerList(wcMessage);
+                    case "startIRCBot":
+                        work.startIRCBot(wcMessage);
                         break;
                     case "addNewAnimeEntry":
                         work.addNewAnimeEntry(wcMessage);
@@ -61,16 +60,12 @@ public class WBCMessageHandler {
                     case "getAnimeList":
                         work.getAnimeList(wcMessage);
                         break;
-                    case "setSetup":
-                        work.setSetup(wcMessage);
-                        break;
-                    case "getSetup":
-                        work.getSetup(wcMessage);
-                        break;
 
 
                     case "clientDisconnected":
                         logger.debug(wcMessage.getMessageBody());
+                        // making printWriter null to prevent sending messages to already closed connection
+                        work.setOut(null);
                         break loop;
 
                     default:

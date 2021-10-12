@@ -4,21 +4,17 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.jmx.Server;
 import org.pircbotx.Configuration;
 import org.pircbotx.PircBotX;
 import org.pircbotx.exception.IrcException;
 import org.pircbotx.hooks.ListenerAdapter;
-import sk.spedry.weebbotcollector.ircbot.util.BotInfo;
-import sk.spedry.weebbotcollector.util.WCMServer;
-import sk.spedry.weebbotcollector.util.lists.ServerList;
+import org.pircbotx.hooks.types.GenericMessageEvent;
+import sk.spedry.weebbotcollector.util.WCMSetup;
 import sk.spedry.weebbotcollector.work.WBCWorkPlace;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import java.util.Timer;
+import java.util.concurrent.TimeUnit;
 
 public class IRCBot extends ListenerAdapter implements Runnable {
 
@@ -26,7 +22,7 @@ public class IRCBot extends ListenerAdapter implements Runnable {
 
     private final PircBotX bot;
     private final IRCBotCommands botCommands;
-    private final IRCBotListener botListener;
+    private IRCBotListener botListener;
     private WBCWorkPlace workPlace;
     @Getter
     private final String threadName;
@@ -43,29 +39,28 @@ public class IRCBot extends ListenerAdapter implements Runnable {
     @Setter
     private String downloadFolder;
 
-    public IRCBot(BotInfo botInfo, WBCWorkPlace workPlace) {
-        this.threadName = botInfo.getServerName() + "_" + botInfo.getChannelName() + "_" + botInfo.getUserName();
-        this.userName = botInfo.getUserName();
-        this.serverName = botInfo.getServerName();
-        this.channelName = botInfo.getChannelName();
-        this.downloadFolder = botInfo.getDownloadFolder();
+    public IRCBot(WBCWorkPlace workPlace) {
+        WCMSetup setup =  workPlace.getSetup();
+        this.threadName = setup.getServerName() + "_" + setup.getChannelName() + "_" + setup.getUserName();
+        this.userName = setup.getUserName();
+        this.serverName = setup.getServerName();
+        this.channelName = setup.getChannelName();
+        this.downloadFolder = setup.getDownloadFolder();
         this.workPlace = workPlace;
         bot = new PircBotX(configureBot());
         botCommands = new IRCBotCommands(bot);
-        botListener = new IRCBotListener(downloadFolder, workPlace, botCommands);
+
     }
 
-    public final Configuration configureBot() {
+    private Configuration configureBot() {
         logger.debug("Configuring bot");
         return new Configuration.Builder()
                 .setName(userName)
                 .setAutoNickChange(true)
-                //.addServer()
-                .addServers()
-                //.addAutoJoinChannel(channelName)
-                .addAutoJoinChannels()
+                .addServer(serverName)
+                .addAutoJoinChannel(channelName)
                 .setAutoReconnect(true)
-                .addListener(botListener)
+                .addListener(botListener = new IRCBotListener(downloadFolder, workPlace, botCommands))
                 //TODO TEST ON RASPBERRY PI 4 8GB
                 .setDccTransferBufferSize(1024*5)
                 .setAutoReconnectDelay(() -> 60)
@@ -76,14 +71,22 @@ public class IRCBot extends ListenerAdapter implements Runnable {
                 .buildConfiguration();
     }
 
-    /*private Iterable<Configuration.ServerEntry> getServerList() {
-        List<Configuration.ServerEntry> serverList = new ArrayList<Configuration.ServerEntry>();
-        for (WCMServer server : workPlace.getServerList(workPlace.getServerListFile()).getServerList()) {
-            serverList.add(new Configuration.ServerEntry(server.getServerName()));
+    public void closeBot() {
+        if (bot.isConnected()) {
+            logger.info("Closing bot");
+            bot.close();
         }
+    }
 
-        return serverList;
-    }*/
+    public void resetBot() {
+        bot.close();
+        try {
+            TimeUnit.SECONDS.sleep(5);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        run();
+    }
 
     @Override
     public void run() {
@@ -94,5 +97,10 @@ public class IRCBot extends ListenerAdapter implements Runnable {
         } catch (IrcException e) {
             logger.error("IrcException", e);
         }
+    }
+
+    @Override
+    public void onGenericMessage(GenericMessageEvent event) {
+        logger.info("{}, Generic message: {}", event.getTimestamp(), event.getMessage());
     }
 }

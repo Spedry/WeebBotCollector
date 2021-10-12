@@ -2,6 +2,7 @@ package sk.spedry.weebbotcollector.work;
 
 import com.google.gson.Gson;
 import lombok.Getter;
+import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -12,10 +13,10 @@ public class WBCMessageSender {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Getter
-    private final PrintWriter out;
+    @Setter
+    private PrintWriter out;
 
-    public WBCMessageSender(PrintWriter out) {
-        this.out = out;
+    public WBCMessageSender() {
     }
 
     public <T> void sendMessage(T object) {
@@ -31,6 +32,9 @@ public class WBCMessageSender {
     }
 
     public void sendMessage(String message) {
-        out.println(message);
+        if (out != null)
+            out.println(message);
+        else
+            logger.error("Print writer is null");
     }
 }

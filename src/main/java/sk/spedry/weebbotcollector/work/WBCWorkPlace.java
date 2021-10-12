@@ -1,12 +1,11 @@
 package sk.spedry.weebbotcollector.work;
 
 import com.google.gson.*;
-import com.google.gson.stream.JsonWriter;
 import lombok.Getter;
 import lombok.NonNull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import sk.spedry.weebbotcollector.WBCApplication;
+import sk.spedry.weebbotcollector.ircbot.WBCService;
 import sk.spedry.weebbotcollector.util.WCMAnime;
 import sk.spedry.weebbotcollector.util.WCMServer;
 import sk.spedry.weebbotcollector.util.WCMSetup;
@@ -15,13 +14,13 @@ import sk.spedry.weebbotcollector.util.lists.AnimeList;
 import sk.spedry.weebbotcollector.util.lists.ServerList;
 
 import java.io.*;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.Iterator;
 
 public class WBCWorkPlace extends WBCMessageSender {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
+
+    private final WBCService service;
 
     private final String userDir = System.getProperty("user.dir");
     private final String propertiesFile = userDir + "/properties/";
@@ -31,17 +30,17 @@ public class WBCWorkPlace extends WBCMessageSender {
     @Getter
     private final String animeListFile = jsonListFile + "animeList.json";
 
-    public WBCWorkPlace(PrintWriter out) {
-        super(out);
+    public WBCWorkPlace() {
+        service = new WBCService(this);
     }
 
     private JsonArray getJsonArray(@NonNull String pathTo) {
         try {
             File file = new File(pathTo);
             if (!file.createNewFile()) {
-                logger.debug("File already exists");
+                logger.debug("File {} already exists", file.getName());
                 if (file.length() == 0) {
-                    logger.debug("File was empty");
+                    logger.debug("File {} was empty", file.getName());
                     return new JsonArray();
                 } // if file exists but is empty create empty array
                 else {
@@ -52,7 +51,7 @@ public class WBCWorkPlace extends WBCMessageSender {
                 } // else read the content and save it into jsonArray
             } // if the file exists check if file isn't empty
             else {
-                logger.debug("File was created");
+                logger.debug("File {} was created", file.getName());
                 return new JsonArray();
             } // else create empty jsonArray
         } catch (IOException e) {
@@ -65,9 +64,9 @@ public class WBCWorkPlace extends WBCMessageSender {
         try {
             File file = new File(pathTo);
             if (!file.createNewFile()) {
-                logger.debug("File already exists");
+                logger.debug("File {} already exists", file.getName());
                 if (file.length() == 0) {
-                    logger.debug("File was empty");
+                    logger.debug("File {} was empty", file.getName());
                     return new JsonObject();
                 }
                 else {
@@ -76,7 +75,7 @@ public class WBCWorkPlace extends WBCMessageSender {
                 }
             }
             else {
-                logger.debug("File was created");
+                logger.debug("File {} was created", file.getName());
                 return new JsonObject();
             }
         } catch (IOException e) {
@@ -113,6 +112,9 @@ public class WBCWorkPlace extends WBCMessageSender {
         return animeList;
     }
 
+    public WCMSetup getSetup() {
+        return new Gson().fromJson(getJsonObject(propertiesFile + "setup.json"), WCMSetup.class);
+    }
 
     /**
      * Methods that communicate with client
@@ -179,7 +181,11 @@ public class WBCWorkPlace extends WBCMessageSender {
     }
 
     public void getSetup(WCMessage wcMessage) {
-        WCMSetup setup = new Gson().fromJson(getJsonObject(propertiesFile + "setup.json"), WCMSetup.class);
-        sendMessage(new WCMessage("setSetup", new Gson().toJson(setup)));
+        sendMessage(new WCMessage("setSetup", new Gson().toJson(getSetup())));
+    }
+
+    public void startIRCBot(WCMessage wcMessage) {
+        logger.info("Starting bot");
+        service.startBot();
     }
 }

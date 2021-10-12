@@ -2,7 +2,9 @@ package sk.spedry.weebbotcollector;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import sk.spedry.weebbotcollector.ircbot.WBCService;
 import sk.spedry.weebbotcollector.work.WBCMessageHandler;
+import sk.spedry.weebbotcollector.work.WBCWorkPlace;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -14,7 +16,7 @@ public class WBCApplication {
     //netstat -ano | findstr :<PORT> == netstat -ano | findstr :50000
     //taskkill /PID <PID> /F == taskkill /PID XXXXXX /F
 
-    private static final int port = 50000;
+    private final int port = 50000;
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -34,12 +36,14 @@ public class WBCApplication {
                     "\n\tName of host: " + hostName +
                     "\n\tWaiting for input on port: " + port + "...");
 
-            while (true) {
-                WBCMessageHandler wbcConf = new WBCMessageHandler(sSocket.accept());
-                logger.info("Connection established. (" + new Date() + ")");
+            WBCWorkPlace work = new WBCWorkPlace();
 
-                wbcConf.messageHandler();
-                logger.info("User disconnected. (" + new Date() + ")");
+            while (true) {
+                WBCMessageHandler wbcMessageHandler = new WBCMessageHandler(sSocket.accept(), work);
+
+                logger.info("Connection established. [{}])", new Date());
+                wbcMessageHandler.messageHandler();
+                logger.info("User disconnected. [{}]", new Date());
             }
         } catch (IOException e) {
             logger.error("Starting server", e);
