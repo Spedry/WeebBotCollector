@@ -7,4 +7,8 @@ public class WCMSetup {
     private String userName;
     @Getter
     private String downloadFolder;
+    @Getter
+    private String serverName;
+    @Getter
+    private String channelName;
 }
