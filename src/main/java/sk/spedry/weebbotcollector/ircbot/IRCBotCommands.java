@@ -19,4 +19,12 @@ public class IRCBotCommands {
         bot.sendIRC().message(target, message);
     }
 
+    public String[] splitDownloadMessage(String downloadMessage) {
+        logger.info("Splitting this msg: {}", downloadMessage);
+        String[] spliced = downloadMessage.split(" ");
+        String botName = spliced[1];
+        String message = spliced[2] + " " + spliced[3] + " " + spliced[4];
+        return new String[] {botName, message};
+    }
+
 }
