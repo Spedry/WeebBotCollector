@@ -21,6 +21,8 @@ import java.util.List;
 
 public class IRCBotListener extends ListenerAdapter {
 
+    private final Logger logger = LogManager.getLogger(this.getClass());
+
     @Setter
     private String downloadFolder;
     private final WBCWorkPlace workPlace;
