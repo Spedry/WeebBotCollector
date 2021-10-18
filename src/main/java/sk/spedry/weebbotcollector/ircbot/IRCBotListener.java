@@ -47,7 +47,7 @@ public class IRCBotListener extends ListenerAdapter {
 
     @Override
     public void onMessage(MessageEvent event) {
-        final String receivedMessage = event.getMessage();
+        final String receivedMessage = event.getMessage().toLowerCase();
         String downloadMessage = null;
 
         if (logger.isDebugEnabled())
@@ -62,34 +62,70 @@ public class IRCBotListener extends ListenerAdapter {
                     logger.info("Testing if anime name matches");
                     if (receivedMessage.contains(anime.getAnimeName().toLowerCase())) {
                         // TODO MATCH WITH BOT IF CHOSEN
-                        String substring = receivedMessage.substring(receivedMessage.lastIndexOf("/MSG") + 4);
                         // check if user specified bot from who our bot should be downloading
-                        if (anime.getBotName() == null) {
-                            downloadMessage = substring;
-                            break;
-                        }
-                        else if (receivedMessage.contains(anime.getBotName())) {
-                            downloadMessage = substring;
-                            break;
-                        }
-                        else {
-                            //TODO DEFAULT OPTION WHERE
-                            // if user wants to download from bot he chose, but:
-                            // 1. the anime selected by him was not released by his selected bot
-                            // 2. he made a grammatical mistake in bot's name
-                            logger.warn("Anime {}, you selected was not released by your selected bot: {}", anime.getAnimeName(), anime.getBotName());
-                            //TODO send message to client app and maybe store the errors/warning messages somewhere
-                        }
+                        downloadMessage = receivedMessage.substring(receivedMessage.lastIndexOf("/msg"));
+                        break;
                     }
                 }
             }
             if (downloadMessage != null) {
-                String[] spliced = downloadMessage.split("\\|");
-                for (String animeName : alreadyDownloadingAnime) {
-                    if (animeName.contains(spliced[0]))
+                String[] spliced = botCommands.splitDownloadMessage(downloadMessage);
+                String botName = spliced[1];
+                String message = spliced[2];
+                logger.debug("Spliced downloadMessage: bot[{}] anime[{}]", botName, message);
+                for (AlreadyDownloadingAnime ADA : alreadyDownloadingAnime) {
+                    if (ADA.getMessage().contains(message))
                         return;
                 }
-                botCommands.sendMessage(spliced[0], spliced[1]);
+                alreadyDownloadingAnime.add(new AlreadyDownloadingAnime(message, botName));
+                botCommands.sendMessage(botName, message);
+            }
+            else {
+                logger.warn("DownloadMessage was null");
+            }
+        }
+    }
+
+    //public void onPrivateMessage(PrivateMessageEvent event) {
+        // TODO OPTION TO DOWNLOAD ANIME BY SENDING PRIVATE MESSAGE TO BOT
+    //}
+    @Override
+    public void onPrivateMessage(PrivateMessageEvent event) {
+        final String receivedMessage = event.getMessage().toLowerCase();
+        String downloadMessage = null;
+
+        if (logger.isDebugEnabled())
+            logger.debug("Received message: " + receivedMessage);
+
+        if (receivedMessage.contains("/msg")) {
+            logger.info("MSG: " + receivedMessage);
+            logger.debug("Going through all anime entries in jsonListFile: animeList.json");
+            for (WCMAnime anime : workPlace.getAnimeList(workPlace.getAnimeListFile()).getAnimeList()) {
+                logger.debug("Testing if anime quality matches");
+                if (receivedMessage.contains(anime.getTypeOfQuality().toLowerCase())) {
+                    logger.info("Testing if anime name matches");
+                    if (receivedMessage.contains(anime.getAnimeName().toLowerCase())) {
+                        // TODO MATCH WITH BOT IF CHOSEN
+                        // check if user specified bot from who our bot should be downloading
+                        downloadMessage = receivedMessage.substring(receivedMessage.lastIndexOf("/msg"));
+                        break;
+                    }
+                }
+            }
+            if (downloadMessage != null) {
+                String[] spliced = botCommands.splitDownloadMessage(downloadMessage);
+                String botName = spliced[1];
+                String message = spliced[2];
+                logger.debug("Spliced downloadMessage: bot[{}] anime[{}]", botName, message);
+                for (AlreadyDownloadingAnime ADA : alreadyDownloadingAnime) {
+                    if (ADA.getMessage().contains(message))
+                        return;
+                }
+                alreadyDownloadingAnime.add(new AlreadyDownloadingAnime(message, botName));
+                botCommands.sendMessage(botName, message);
+            }
+            else {
+                logger.warn("DownloadMessage was null");
             }
         }
     }
