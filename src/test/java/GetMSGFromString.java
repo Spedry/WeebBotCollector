@@ -8,7 +8,7 @@ public class GetMSGFromString {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    WBCWorkPlace workPlace = new WBCWorkPlace(null);
+    WBCWorkPlace workPlace = new WBCWorkPlace();
 
     String msg = "From #SubsPlease, come join the one stop shop for new anime * [295M] * [SubsPlease] Re-Main - 12 (480p) [30B51151].mkv * 07/MSG CR-HOLLAND-IPv6|NEW XDCC SEND 18562";
 
