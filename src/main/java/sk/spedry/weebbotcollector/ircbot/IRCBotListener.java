@@ -39,10 +39,10 @@ public class IRCBotListener extends ListenerAdapter {
         this.workPlace = workPlace;
         this.botCommands = botCommands;
     }
-
-    private final Logger logger = LogManager.getLogger(this.getClass());
-
-    List<String> alreadyDownloadingAnime = new ArrayList<String>();
+     @Override
+    public void onGenericMessage(GenericMessageEvent event) throws Exception {
+        logger.debug("Generic message: {}", event.getMessage());
+    }
 
     @Override
     public void onMessage(MessageEvent event) {
