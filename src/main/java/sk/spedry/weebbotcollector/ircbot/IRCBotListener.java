@@ -9,6 +9,7 @@ import org.pircbotx.hooks.events.IncomingFileTransferEvent;
 import org.pircbotx.hooks.events.MessageEvent;
 import org.pircbotx.hooks.events.PrivateMessageEvent;
 import org.pircbotx.hooks.types.GenericMessageEvent;
+import sk.spedry.weebbotcollector.ircbot.util.AlreadyDownloadingAnime;
 import sk.spedry.weebbotcollector.util.WCMAnime;
 import sk.spedry.weebbotcollector.work.WBCWorkPlace;
 
