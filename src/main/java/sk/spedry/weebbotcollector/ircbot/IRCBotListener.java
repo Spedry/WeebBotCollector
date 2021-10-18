@@ -43,14 +43,14 @@ public class IRCBotListener extends ListenerAdapter {
         if (logger.isDebugEnabled())
             logger.debug("Received message: " + receivedMessage);
 
-        if (receivedMessage.contains("/MSG")) {
+        if (receivedMessage.contains("/msg")) {
             logger.info("MSG: " + receivedMessage);
-            // got through all anime entries in jsonListFile/animeList.json
+            logger.debug("Going through all anime entries in jsonListFile: animeList.json");
             for (WCMAnime anime : workPlace.getAnimeList(workPlace.getAnimeListFile()).getAnimeList()) {
-                // if anime quality matches
-                if (receivedMessage.contains(anime.getTypeOfQuality())) {
-                    // if anime name matches
-                    if (receivedMessage.contains(anime.getAnimeName())) {
+                logger.debug("Testing if anime quality matches");
+                if (receivedMessage.contains(anime.getTypeOfQuality().toLowerCase())) {
+                    logger.info("Testing if anime name matches");
+                    if (receivedMessage.contains(anime.getAnimeName().toLowerCase())) {
                         // TODO MATCH WITH BOT IF CHOSEN
                         String substring = receivedMessage.substring(receivedMessage.lastIndexOf("/MSG") + 4);
                         // check if user specified bot from who our bot should be downloading
