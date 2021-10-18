@@ -107,18 +107,6 @@ public class IRCBotListener extends ListenerAdapter {
         // Give ReceiveFileTransfer to a new tracking thread or block here
         // with a while (fileTransfer.getFileTransferStatus().isFinished()) loop
         fileTransfer.transfer();
-        logger.debug("Incoming file transfer ended, waiting for new file");
-        logger.info("/------------------------------------------------------/");
-        logger.info("Anime names before delete:");
-        for (String animeName : alreadyDownloadingAnime) {
-            logger.info(animeName);
-        }
-        alreadyDownloadingAnime.removeIf(animeName -> event.getSafeFilename().contains(animeName));
-        logger.info("Anime names after delete:");
-        for (String animeName : alreadyDownloadingAnime) {
-            logger.info(animeName);
-        }
-        logger.info("/------------------------------------------------------/");
     }
 
 }
