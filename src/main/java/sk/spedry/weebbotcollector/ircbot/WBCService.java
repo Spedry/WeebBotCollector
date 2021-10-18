@@ -15,16 +15,16 @@ public class WBCService {
     public WBCService(WBCWorkPlace workPlace) {
         logger.trace("Creating Bot service");
         if (botThread == null) {
-            botThread = new Thread(bot = new IRCBot(workPlace));
-            botThread.setName(bot.getClass().getSimpleName());
-            botThread.setDaemon(true);
             WCMSetup setup = workPlace.getSetup();
-            if (!setup.getServerName().isEmpty() &&
+            if (!setup.getUserName().isEmpty() &&
                 !setup.getDownloadFolder().isEmpty() &&
                 !setup.getServerName().isEmpty() &&
-                !setup.getDownloadFolder().isEmpty()) {
+                !setup.getChannelName().isEmpty()) {
+                botThread = new Thread(bot = new IRCBot(workPlace));
+                botThread.setName(bot.getClass().getSimpleName());
+                botThread.setDaemon(true);
                 logger.debug("Setup.json was filled with necessary information, starting bot");
-                startBot();
+                //startBot();
             }
         }
     }
