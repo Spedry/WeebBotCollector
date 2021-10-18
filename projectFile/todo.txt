@@ -1,0 +1,24 @@
+## TO DO ##
+- test if file doesn't contain virus
+- add option for user to choose maxAnimeSize limit
+- add option for user to chose from what bot download anime only
+- options do download already released anime
+- abort unwanted download
+# DOWNLOAD ALD RELEASED ANIME #
+
+- use !search "anime name"
+
+# CHOSE OWN BOT #
+
+
+problem:
+// if user wants to download from bot he chose, but:
+// 1. the anime selected by him was not released by him selected bot
+// 2. he made a grammatical mistake in bot's name
+- send message to client app and maybe store the errors/warning messages somewhere
+
+## THOUGHTS ##
+- allow downloading multiple animes at once or just one?
+- use .properties or just .json?
+- how to recognize new release anime, is contains("/MSG") enough?
+    options (from bot, contains anime name, other)
