@@ -132,26 +132,50 @@ public class IRCBotListener extends ListenerAdapter {
 
     @Override
     public void onIncomingFileTransfer(IncomingFileTransferEvent event) throws Exception {
-        logger.debug("Incoming file transfer started");
+        logger.debug("On incoming file transfer started");
         super.onIncomingFileTransfer(event);
-        // Create Path using your download directory
-        Path path = Paths.get( downloadFolder + "/" + event.getSafeFilename());
+
+        String receivedFileName = event.getSafeFilename();
+        Path path = Paths.get( downloadFolder + "/" + receivedFileName);
+        logger.debug("Testing if maxFileSize isn't null");
+        if (maxFileSize == 0) {
+            logger.error("Variable maxFileSite in null");
+            return;
+        }
+        logger.debug("Testing if file isn't over file size limit");
+        if (event.getFilesize() > maxFileSize) {
+            logger.warn("Received file: {} went over max file size limit: {}!", receivedFileName, event.getFilesize());
+            return;
+        }
+        logger.debug("Testing if received file contains name of anime from download list");
+        testReceivedFile : try {
+            for (WCMAnime anime : workPlace.getAnimeList(workPlace.getAnimeListFile()).getAnimeList()) {
+                if (receivedFileName.contains(anime.getAnimeName())) {
+                    break testReceivedFile;
+                }
+            }
+            throw new Exception();
+        } catch (Exception e) {
+            logger.error("This file: {} didn't match any anime from download anime list", receivedFileName);
+            return;
+        }
 
         ReceiveFileTransfer fileTransfer;
-
-        // If the file exists, resume from a position
+        
         if (path.toFile().exists()) {
             // Use BasicFileAttributes to find position to resume
-            fileTransfer = event.acceptResume(path.toFile(),
-                    Files.readAttributes(path, BasicFileAttributes.class).size());
+            // TODO IF TO TEST IS EXISTING FILE == event.fileSize();
+            logger.debug("File already exists, resuming where ended");
+            fileTransfer = event.acceptResume(path.toFile(), Files.readAttributes(path, BasicFileAttributes.class).size());
         }
-        // Accept a new file
         else {
+            logger.debug("Accepting file transfer");
             fileTransfer = event.accept(path.toFile());
         }
 
         // Give ReceiveFileTransfer to a new tracking thread or block here
         // with a while (fileTransfer.getFileTransferStatus().isFinished()) loop
+        logger.info("Transfer");
         fileTransfer.transfer();
     }
 
