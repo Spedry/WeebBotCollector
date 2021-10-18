@@ -32,6 +32,17 @@ public class WBCWorkPlace extends WBCMessageSender {
 
     public WBCWorkPlace() {
         service = new WBCService(this);
+        logger.debug("Testing if folders exists");
+        createFolder(propertiesFile);
+        createFolder(jsonListFile);
+    }
+
+    private void createFolder(@NonNull String path) {
+        File directory = new File(path);
+        if (!directory.exists()){
+            logger.debug("Creating folder: {}", path);
+            directory.mkdirs();
+        }
     }
 
     private JsonArray getJsonArray(@NonNull String pathTo) {
