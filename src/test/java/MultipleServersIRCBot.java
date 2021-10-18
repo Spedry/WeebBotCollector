@@ -57,7 +57,7 @@ public class MultipleServersIRCBot implements Runnable {
                 .setAutoReconnect(true)
                 .addListener(botListener)
                 //TODO TEST ON RASPBERRY PI 4 8GB
-                .setDccTransferBufferSize(1024*5)
+                //.setDccTransferBufferSize(1024*5)
                 .setAutoReconnectDelay(() -> 60)
                 // this option is set to true by default
                 // it means that the bot will safely disconnect
