@@ -58,7 +58,7 @@ public class IRCBotListener extends ListenerAdapter {
             logger.debug("Going through all anime entries in jsonListFile: animeList.json");
             for (WCMAnime anime : workPlace.getAnimeList(workPlace.getAnimeListFile()).getAnimeList()) {
                 logger.debug("Testing if anime quality matches");
-                if (receivedMessage.contains(anime.getTypeOfQuality().toLowerCase())) {
+                if (receivedMessage.contains(anime.getTypeOfQuality().getName().toLowerCase())) {
                     logger.info("Testing if anime name matches");
                     if (receivedMessage.contains(anime.getAnimeName().toLowerCase())) {
                         // TODO MATCH WITH BOT IF CHOSEN
@@ -102,7 +102,7 @@ public class IRCBotListener extends ListenerAdapter {
             logger.debug("Going through all anime entries in jsonListFile: animeList.json");
             for (WCMAnime anime : workPlace.getAnimeList(workPlace.getAnimeListFile()).getAnimeList()) {
                 logger.debug("Testing if anime quality matches");
-                if (receivedMessage.contains(anime.getTypeOfQuality().toLowerCase())) {
+                if (receivedMessage.contains(anime.getTypeOfQuality().getName().toLowerCase())) {
                     logger.info("Testing if anime name matches");
                     if (receivedMessage.contains(anime.getAnimeName().toLowerCase())) {
                         // TODO MATCH WITH BOT IF CHOSEN
