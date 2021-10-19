@@ -56,7 +56,6 @@ public class WBCMessageHandler {
                         break;
                     case "addNewAnimeEntry":
                         work.addNewAnimeEntry(wcMessage);
-                        break;
                     case "getAnimeList":
                         work.getAnimeList(wcMessage);
                         break;
