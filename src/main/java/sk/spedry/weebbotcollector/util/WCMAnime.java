@@ -10,7 +10,7 @@ public class WCMAnime {
     @Getter
     private String animeName;
     @Getter
-    private String typeOfQuality;
+    private CodeTable typeOfQuality;
     @Getter
     private String botName;
     @Getter
