@@ -2,18 +2,21 @@ package sk.spedry.weebbotcollector.ircbot;
 
 import lombok.Getter;
 import lombok.Setter;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pircbotx.Configuration;
 import org.pircbotx.PircBotX;
 import org.pircbotx.exception.IrcException;
 import org.pircbotx.hooks.ListenerAdapter;
-import org.pircbotx.hooks.types.GenericMessageEvent;
+
 import sk.spedry.weebbotcollector.util.WCMSetup;
 import sk.spedry.weebbotcollector.work.WBCWorkPlace;
 
 import java.io.IOException;
-import java.util.Timer;
+import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class IRCBot extends ListenerAdapter implements Runnable {
@@ -22,7 +25,8 @@ public class IRCBot extends ListenerAdapter implements Runnable {
 
     private final PircBotX bot;
     private final IRCBotCommands botCommands;
-    private IRCBotListener botListener;
+    //TODO WILL BE USED LATER ???
+    // private IRCBotListener botListener;
     private WBCWorkPlace workPlace;
     @Getter
     private final String threadName;
@@ -39,7 +43,16 @@ public class IRCBot extends ListenerAdapter implements Runnable {
     @Setter
     private String downloadFolder;
 
+    private InetAddress inetAddress;
+    private List<Integer> portList = new ArrayList<Integer>();
     public IRCBot(WBCWorkPlace workPlace) {
+        /*try {
+            inetAddress = InetAddress.getByName("");
+        }
+        catch (Exception e) {
+            logger.error(e);
+        }
+        fillPortList();*/
         WCMSetup setup =  workPlace.getSetup();
         this.threadName = setup.getServerName() + "_" + setup.getChannelName() + "_" + setup.getUserName();
         this.userName = setup.getUserName();
@@ -49,7 +62,7 @@ public class IRCBot extends ListenerAdapter implements Runnable {
         this.workPlace = workPlace;
         bot = new PircBotX(configureBot());
         botCommands = new IRCBotCommands(bot);
-
+        addListener();
     }
 
     private Configuration configureBot() {
@@ -60,15 +73,26 @@ public class IRCBot extends ListenerAdapter implements Runnable {
                 .addServer(serverName)
                 .addAutoJoinChannel(channelName)
                 .setAutoReconnect(true)
-                .addListener(botListener = new IRCBotListener(downloadFolder, workPlace, botCommands))
-                //TODO TEST ON RASPBERRY PI 4 8GB
-                .setDccTransferBufferSize(1024*5)
+                // will be added after bot is constructed and added into botCommands
+                //.addListener(new IRCBotListener(downloadFolder, workPlace, botCommands))
+                // was available in pircbotx 2.2
+                // transferred to pircbotx master-snapshot
+                // in which was method removed
+                //.setDccTransferBufferSize(1024*5)
+                //.setDccResumeAcceptTimeout(180)
+                //.setDccPublicAddress(inetAddress)
+                //.setDccPorts(portList)
+                //.setDccPassiveRequest(true)
                 .setAutoReconnectDelay(() -> 60)
                 // this option is set to true by default
                 // it means that the bot will safely disconnect
                 // from server/channel if thread is shutdown
                 .setShutdownHookEnabled(true)
                 .buildConfiguration();
+    }
+
+    private void addListener() {
+        bot.getConfiguration().getListenerManager().addListener(new IRCBotListener(downloadFolder, workPlace, botCommands));
     }
 
     public void closeBot() {
@@ -99,8 +123,12 @@ public class IRCBot extends ListenerAdapter implements Runnable {
         }
     }
 
-    @Override
-    public void onGenericMessage(GenericMessageEvent event) {
-        logger.info("{}, Generic message: {}", event.getTimestamp(), event.getMessage());
+    private void fillPortList() {
+        portList.add(40000);
+        portList.add(40001);
+        portList.add(40002);
+        portList.add(40003);
+        portList.add(40004);
+        portList.add(40005);
     }
 }
