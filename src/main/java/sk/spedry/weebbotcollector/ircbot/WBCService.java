@@ -16,9 +16,13 @@ public class WBCService {
         logger.trace("Creating Bot service");
         if (botThread == null) {
             WCMSetup setup = workPlace.getSetup();
-            if (!setup.getUserName().isEmpty() &&
+            if (setup.getUserName() != null &&
+                !setup.getUserName().isEmpty() &&
+                setup.getDownloadFolder() != null &&
                 !setup.getDownloadFolder().isEmpty() &&
+                setup.getServerName() != null &&
                 !setup.getServerName().isEmpty() &&
+                setup.getChannelName() != null &&
                 !setup.getChannelName().isEmpty()) {
                 botThread = new Thread(bot = new IRCBot(workPlace));
                 botThread.setName(bot.getClass().getSimpleName());
