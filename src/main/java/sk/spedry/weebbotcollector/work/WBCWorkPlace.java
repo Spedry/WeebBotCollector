@@ -37,7 +37,7 @@ public class WBCWorkPlace extends WBCMessageSender {
         createFolder(jsonListFile);
     }
 
-    private void createFolder(@NonNull String path) {
+    public void createFolder(@NonNull String path) {
         File directory = new File(path);
         if (!directory.exists()){
             logger.debug("Creating folder: {}", path);
