@@ -199,4 +199,27 @@ public class WBCWorkPlace extends WBCMessageSender {
         logger.info("Starting bot");
         service.startBot();
     }
+
+    public void updateAnime(WCMessage wcMessage) {
+        try {
+            AnimeList animeList = getAnimeList(animeListFile);
+            // put file reader after the file was read, file reader will delete it's content
+            FileWriter fileWriter = new FileWriter(animeListFile);
+            // edit existing anime in the list
+            WCMAnime wcmAnime = new Gson().fromJson(wcMessage.getMessageBody(), WCMAnime.class);
+            animeList.updateAnime(wcmAnime.getId(), wcmAnime);
+            logger.debug("Update anime entry with id: {}", wcmAnime.getId());
+            // save content of the list into file
+            new Gson().toJson(animeList, fileWriter);
+            fileWriter.close();
+            logger.debug("Saving file: success");
+            sendMessage(new WCMessage("animeList", new Gson().toJson(animeList)));
+        } catch (IOException e) {
+            logger.error("File reader: ", e);
+        }
+    }
+
+    public void removeAnimeFromList(WCMessage wcMessage) {
+
+    }
 }
