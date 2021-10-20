@@ -59,6 +59,12 @@ public class WBCMessageHandler {
                     case "getAnimeList":
                         work.getAnimeList(wcMessage);
                         break;
+                    case "updateAnime":
+                        work.updateAnime(wcMessage);
+                        break;
+                    case "removeAnimeFromList":
+                        work.removeAnimeFromList(wcMessage);
+                        break;
 
 
                     case "clientDisconnected":
