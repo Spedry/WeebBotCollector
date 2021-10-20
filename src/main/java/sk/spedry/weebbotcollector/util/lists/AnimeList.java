@@ -23,4 +23,16 @@ public class AnimeList {
     public int getSize() {
         return this.list.size();
     }
+
+    public void updateAnime(int id, WCMAnime anime) {
+        list.set(id, anime);
+    }
+
+    public void removeAnime(WCMAnime anime) {
+        list.remove(anime);
+    }
+
+    public void removeAnime(int id) {
+        list.remove(id);
+    }
 }
