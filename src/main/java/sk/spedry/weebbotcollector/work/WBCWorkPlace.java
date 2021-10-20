@@ -94,7 +94,7 @@ public class WBCWorkPlace extends WBCMessageSender {
         }
         return new JsonObject();
     }
-
+    //NOT IN USE/OLD
     public ServerList getServerList(@NonNull String listFile) {
         ServerList serverList = new ServerList();
         JsonArray jsonArray = getJsonArray(listFile);
@@ -131,7 +131,7 @@ public class WBCWorkPlace extends WBCMessageSender {
      * Methods that communicate with client
      *
      */
-
+    //OLD
     public void addServer(WCMessage wcMessage) {
         try {
             ServerList serverList = getServerList(serverListFile);
@@ -151,7 +151,7 @@ public class WBCWorkPlace extends WBCMessageSender {
             logger.error("Couldn't find the file in given path", e);
         }
     }
-
+    //OLD
     public void getServerList(WCMessage wcMessage) {
         sendMessage(new WCMessage(wcMessage.getMessageId(), new Gson().toJson(getServerList(serverListFile))));
     }
