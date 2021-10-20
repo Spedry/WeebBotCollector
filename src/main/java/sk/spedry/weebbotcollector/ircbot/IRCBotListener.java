@@ -135,8 +135,8 @@ public class IRCBotListener extends ListenerAdapter {
         logger.debug("On incoming file transfer started");
         super.onIncomingFileTransfer(event);
 
-        String receivedFileName = event.getSafeFilename();
-        Path path = Paths.get( downloadFolder + "/" + receivedFileName);
+        String receivedFileName = event.getSafeFilename(), animeName;
+
         logger.debug("Testing if maxFileSize isn't null");
         if (maxFileSize == 0) {
             logger.error("Variable maxFileSite in null");
@@ -151,6 +151,7 @@ public class IRCBotListener extends ListenerAdapter {
         testReceivedFile : try {
             for (WCMAnime anime : workPlace.getAnimeList(workPlace.getAnimeListFile()).getAnimeList()) {
                 if (receivedFileName.contains(anime.getAnimeName())) {
+                    animeName = anime.getAnimeName();
                     break testReceivedFile;
                 }
             }
@@ -160,6 +161,9 @@ public class IRCBotListener extends ListenerAdapter {
             return;
         }
 
+        String downloadFolder = this.downloadFolder + "/" + animeName;
+        workPlace.createFolder(downloadFolder);
+        Path path = Paths.get( downloadFolder + "/" + receivedFileName);
         ReceiveFileTransfer fileTransfer;
         
         if (path.toFile().exists()) {
