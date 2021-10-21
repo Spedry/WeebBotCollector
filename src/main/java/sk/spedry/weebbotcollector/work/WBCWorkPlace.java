@@ -13,7 +13,10 @@ import sk.spedry.weebbotcollector.util.WCMessage;
 import sk.spedry.weebbotcollector.util.lists.AnimeList;
 import sk.spedry.weebbotcollector.util.lists.ServerList;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Iterator;
 
 public class WBCWorkPlace extends WBCMessageSender {
@@ -31,7 +34,8 @@ public class WBCWorkPlace extends WBCMessageSender {
     private final String animeListFile = jsonListFile + "animeList.json";
 
     public WBCWorkPlace() {
-        service = new WBCService(this);
+        service = new WBCService();
+        startIRCBot(new WCMessage("startIRCBot"));
         logger.debug("Testing if folders exists");
         createFolder(propertiesFile);
         createFolder(jsonListFile);
@@ -170,7 +174,7 @@ public class WBCWorkPlace extends WBCMessageSender {
             new Gson().toJson(animeList, fileWriter);
             fileWriter.close();
             logger.debug("Saving file: success");
-            sendMessage(new WCMessage("animeList", new Gson().toJson(animeList)));
+            sendMessage(new WCMessage(wcMessage.getMessageId(), new Gson().toJson(animeList)));
         } catch (IOException e) {
             logger.error("File reader: ", e);
         }
@@ -186,6 +190,7 @@ public class WBCWorkPlace extends WBCMessageSender {
             WCMSetup setup = new Gson().fromJson(wcMessage.getMessageBody(), WCMSetup.class);
             new Gson().toJson(setup, fileWriter);
             fileWriter.close();
+            sendMessage(new WCMessage("getSetup", new Gson().toJson(getSetup())));
         } catch (IOException e) {
             logger.error("Couldn't find the file in given path", e);
         }
@@ -197,7 +202,18 @@ public class WBCWorkPlace extends WBCMessageSender {
 
     public void startIRCBot(WCMessage wcMessage) {
         logger.info("Starting bot");
-        service.startBot();
+        WCMSetup setup = getSetup();
+        if (setup.getUserName() != null &&
+                !setup.getUserName().isEmpty() &&
+                setup.getDownloadFolder() != null &&
+                !setup.getDownloadFolder().isEmpty() &&
+                setup.getServerName() != null &&
+                !setup.getServerName().isEmpty() &&
+                setup.getChannelName() != null &&
+                !setup.getChannelName().isEmpty()) {
+            service.createBotThread(this);
+            sendMessage(wcMessage.getMessageId());
+        }
     }
 
     public void updateAnime(WCMessage wcMessage) {
