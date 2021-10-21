@@ -2,7 +2,7 @@ package sk.spedry.weebbotcollector.ircbot;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import sk.spedry.weebbotcollector.util.WCMSetup;
+import sk.spedry.weebbotcollector.util.WCMessage;
 import sk.spedry.weebbotcollector.work.WBCWorkPlace;
 
 public class WBCService {
@@ -12,24 +12,17 @@ public class WBCService {
     private IRCBot bot;
     private Thread botThread;
 
-    public WBCService(WBCWorkPlace workPlace) {
+    public WBCService() {
         logger.trace("Creating Bot service");
+    }
+
+    public void createBotThread(WBCWorkPlace workPlace) {
         if (botThread == null) {
-            WCMSetup setup = workPlace.getSetup();
-            if (setup.getUserName() != null &&
-                !setup.getUserName().isEmpty() &&
-                setup.getDownloadFolder() != null &&
-                !setup.getDownloadFolder().isEmpty() &&
-                setup.getServerName() != null &&
-                !setup.getServerName().isEmpty() &&
-                setup.getChannelName() != null &&
-                !setup.getChannelName().isEmpty()) {
-                botThread = new Thread(bot = new IRCBot(workPlace));
-                botThread.setName(bot.getClass().getSimpleName());
-                botThread.setDaemon(true);
-                logger.debug("Setup.json was filled with necessary information, starting bot");
-                //startBot();
-            }
+            botThread = new Thread(bot = new IRCBot(workPlace));
+            botThread.setName(bot.getClass().getSimpleName());
+            botThread.setDaemon(true);
+            logger.debug("Setup.json was filled with necessary information, starting bot");
+            startBot();
         }
     }
 
