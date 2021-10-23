@@ -35,8 +35,8 @@ public class WBCWorkPlace extends WBCMessageSender {
         service = new WBCService();
         startIRCBot(new WCMessage("startIRCBot"));
         logger.debug("Testing if folders exists");
-        createFolder(propertiesFile);
-        createFolder(jsonListFile);
+        createFolder(propertiesFolder);
+        createFolder(jsonListFolder);
     }
 
     public void createFolder(@NonNull String path) {
