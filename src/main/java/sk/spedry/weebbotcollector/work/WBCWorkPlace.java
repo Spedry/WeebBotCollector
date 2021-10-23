@@ -96,9 +96,9 @@ public class WBCWorkPlace extends WBCMessageSender {
         return new JsonObject();
     }
 
-    public AnimeList getAnimeList(String listFile) {
+    public AnimeList getAnimeList() {
         AnimeList animeList = new AnimeList();
-        JsonArray jsonArray = getJsonArray(listFile);
+        JsonArray jsonArray = getJsonArray(animeListFile);
         Iterator<JsonElement> iterator = jsonArray.iterator();
         // put already existed animes into list
         int pos = 0;
@@ -145,7 +145,7 @@ public class WBCWorkPlace extends WBCMessageSender {
 
     public void addNewAnimeEntry(WCMessage wcMessage) {
         try {
-            AnimeList animeList = getAnimeList(animeListFile);
+            AnimeList animeList = getAnimeList();
             // put file reader after the file was read, file reader will delete it's content
             FileWriter fileWriter = new FileWriter(animeListFile);
             // add new anime into list
