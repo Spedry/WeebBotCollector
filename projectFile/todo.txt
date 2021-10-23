@@ -4,12 +4,18 @@
 - add option for user to chose from what bot download anime only
 - options do download already released anime
 - abort unwanted download
+
+# ANSWER TO THIS #
+
+** You have a DCC pending, Set your client to receive the transfer. Type "/MSG CR-ARUTHA|NEW XDCC CANCEL" to abort the transfer. (30 seconds remaining until timeout)
+
 # DOWNLOAD ALD RELEASED ANIME #
 
 - use !search "anime name"
 
 # CHOSE OWN BOT #
 
+possible bots: samples/bots.txt
 
 problem:
 // if user wants to download from bot he chose, but:
