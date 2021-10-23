@@ -223,7 +223,27 @@ public class WBCWorkPlace extends WBCMessageSender {
         }
     }
 
-    public void removeAnimeFromList(WCMessage wcMessage) {
+    public void updateAnime(WCMessage wcMessage) {
+        saveUpdatedAnime(new Gson().fromJson(wcMessage.getMessageBody(), WCMAnime.class));
+        logger.debug("Saving file: success");
+        send("animeList", getAnimeList());
+    }
 
+    public void removeAnimeFromList(WCMessage wcMessage) {
+        try {
+            AnimeList animeList = getAnimeList();
+            FileWriter fileWriter = new FileWriter(animeListFile);
+            animeList.removeAnime(new Gson().fromJson(wcMessage.getMessageBody(), WCMAnime.class).getId());
+            // recreate animeList
+            int pos = 0;
+            for (WCMAnime anime : animeList.getAnimeList()) {
+                anime.setId(pos++);
+            }
+            // save content of the list into file
+            new Gson().toJson(animeList, fileWriter);
+            fileWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
