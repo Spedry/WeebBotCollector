@@ -26,12 +26,10 @@ public class WBCWorkPlace extends WBCMessageSender {
     private final WBCService service;
 
     private final String userDir = System.getProperty("user.dir");
-    private final String propertiesFile = userDir + "/properties/";
-    private final String jsonListFile = propertiesFile + "jsonListFile/";
+    private final String propertiesFolder = userDir + "/properties/";
+    private final String jsonListFolder = propertiesFolder + "jsonListFile/";
     @Getter
-    private final String serverListFile = jsonListFile + "serverList.json";
-    @Getter
-    private final String animeListFile = jsonListFile + "animeList.json";
+    private final String animeListFile = jsonListFolder + "animeList.json";
 
     public WBCWorkPlace() {
         service = new WBCService();
