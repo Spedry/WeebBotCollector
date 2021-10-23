@@ -110,6 +110,29 @@ public class WBCWorkPlace extends WBCMessageSender {
         return animeList;
     }
 
+    private WCMAnime getAnime(int id) {
+        for (WCMAnime anime : getAnimeList().getAnimeList()) {
+            if (anime.getId() == id)
+                return anime;
+        }
+        return null;
+    }
+
+    private WCMAnime getAnime(String animeName) {
+        for (WCMAnime anime : getAnimeList().getAnimeList()) {
+            if (anime.getAnimeName().equals(animeName))
+                return anime;
+        }
+        return null;
+    }
+
+    public void increaseAnimeDownload(@NonNull String animeName) {
+        WCMAnime anime = getAnime(animeName);
+        anime.increaseNumberOfDownloadedEpisodes();
+        saveUpdatedAnime(anime);
+        send("setProgress", new WCMProgress(0));
+    }
+
     public WCMSetup getSetup() {
         return new Gson().fromJson(getJsonObject(propertiesFile + "setup.json"), WCMSetup.class);
     }
