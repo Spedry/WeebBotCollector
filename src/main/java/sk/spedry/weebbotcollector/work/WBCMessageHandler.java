@@ -6,7 +6,6 @@ import sk.spedry.weebbotcollector.util.WCMessage;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.Writer;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -15,15 +14,12 @@ public class WBCMessageHandler {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final Socket socket;
-    private final WBCMessageReceiver messageReceiver;
     private final LinkedBlockingDeque<WCMessage> WCMessageQueue;
     private final WBCWorkPlace work;
 
     public WBCMessageHandler(Socket socket, WBCWorkPlace work) {
         logger.trace("Creating Message handler");
-        this.socket = socket;
-        this.messageReceiver = new WBCMessageReceiver(socket);
+        WBCMessageReceiver messageReceiver = new WBCMessageReceiver(socket);
         this.work = work;
         Thread wbcMessageReceiverThread = new Thread(messageReceiver);
         wbcMessageReceiverThread.setDaemon(true);
