@@ -141,29 +141,13 @@ public class WBCWorkPlace extends WBCMessageSender {
      * Methods that communicate with client
      *
      */
-    //OLD
-    public void addServer(WCMessage wcMessage) {
-        try {
-            ServerList serverList = getServerList(serverListFile);
-            // put file reader after the file was read, file reader will delete it's content
-            FileWriter fileWriter = new FileWriter(serverListFile);
-            // add new server into list
-            WCMServer wcmServer = new Gson().fromJson(wcMessage.getMessageBody(), WCMServer.class);
-            wcmServer.setId((serverList.getSize()));
-            serverList.addServer(wcmServer);
-            logger.debug("Size of server list: " + serverList.getSize());
-            // save content of the list into file
-            new Gson().toJson(serverList, fileWriter);
-            fileWriter.close();
-            logger.debug("Saving file: success");
-            sendMessage(new WCMessage("serverList", new Gson().toJson(serverList)));
-        } catch (IOException e) {
-            logger.error("Couldn't find the file in given path", e);
-        }
+
+    public void send(String id, Object object) {
+        sendMessage(new WCMessage(id, new Gson().toJson(object)));
     }
-    //OLD
-    public void getServerList(WCMessage wcMessage) {
-        sendMessage(new WCMessage(wcMessage.getMessageId(), new Gson().toJson(getServerList(serverListFile))));
+
+    public void send(String id) {
+        sendMessage(new WCMessage(id));
     }
 
     public void addNewAnimeEntry(WCMessage wcMessage) {
@@ -180,14 +164,14 @@ public class WBCWorkPlace extends WBCMessageSender {
             new Gson().toJson(animeList, fileWriter);
             fileWriter.close();
             logger.debug("Saving file: success");
-            sendMessage(new WCMessage(wcMessage.getMessageId(), new Gson().toJson(animeList)));
+            send(wcMessage.getMessageId(), animeList);
         } catch (IOException e) {
             logger.error("File reader: ", e);
         }
     }
 
     public void getAnimeList(WCMessage wcMessage) {
-        sendMessage(new WCMessage(wcMessage.getMessageId(), new Gson().toJson(getAnimeList(animeListFile))));
+        send(wcMessage.getMessageId(), getAnimeList());
     }
 
     public void setSetup(WCMessage wcMessage) {
@@ -196,14 +180,14 @@ public class WBCWorkPlace extends WBCMessageSender {
             WCMSetup setup = new Gson().fromJson(wcMessage.getMessageBody(), WCMSetup.class);
             new Gson().toJson(setup, fileWriter);
             fileWriter.close();
-            sendMessage(new WCMessage("getSetup", new Gson().toJson(getSetup())));
+            send("getSetup", getSetup());
         } catch (IOException e) {
             logger.error("Couldn't find the file in given path", e);
         }
     }
 
     public void getSetup(WCMessage wcMessage) {
-        sendMessage(new WCMessage("setSetup", new Gson().toJson(getSetup())));
+        send(wcMessage.getMessageId(), getSetup());
     }
 
     public void startIRCBot(WCMessage wcMessage) {
@@ -218,7 +202,7 @@ public class WBCWorkPlace extends WBCMessageSender {
                 setup.getChannelName() != null &&
                 !setup.getChannelName().isEmpty()) {
             service.createBotThread(this);
-            sendMessage(wcMessage.getMessageId());
+            send(wcMessage.getMessageId());
         }
     }
 
@@ -234,8 +218,7 @@ public class WBCWorkPlace extends WBCMessageSender {
             // save content of the list into file
             new Gson().toJson(animeList, fileWriter);
             fileWriter.close();
-            logger.debug("Saving file: success");
-            sendMessage(new WCMessage("animeList", new Gson().toJson(animeList)));
+            send("editAnimeEntry", getAnimeList());
         } catch (IOException e) {
             logger.error("File reader: ", e);
         }
