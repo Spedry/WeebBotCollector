@@ -11,7 +11,6 @@ import sk.spedry.weebbotcollector.util.WCMServer;
 import sk.spedry.weebbotcollector.util.WCMSetup;
 import sk.spedry.weebbotcollector.util.WCMessage;
 import sk.spedry.weebbotcollector.util.lists.AnimeList;
-import sk.spedry.weebbotcollector.util.lists.ServerList;
 
 import java.io.File;
 import java.io.FileReader;
@@ -95,20 +94,6 @@ public class WBCWorkPlace extends WBCMessageSender {
             logger.error("Couldn't find the file in given path: " + pathTo, e);
         }
         return new JsonObject();
-    }
-    //NOT IN USE/OLD
-    public ServerList getServerList(@NonNull String listFile) {
-        ServerList serverList = new ServerList();
-        JsonArray jsonArray = getJsonArray(listFile);
-        Iterator<JsonElement> iterator = jsonArray.iterator();
-        // put already existed servers into list
-        int pos = 0;
-        while (iterator.hasNext()) {
-            WCMServer wcmServer = new Gson().fromJson(iterator.next().toString(), WCMServer.class);
-            wcmServer.setId(pos++);
-            serverList.addServer(wcmServer);
-        }
-        return serverList;
     }
 
     public AnimeList getAnimeList(String listFile) {
