@@ -180,7 +180,26 @@ public class IRCBotListener extends ListenerAdapter {
 
         // Give ReceiveFileTransfer to a new tracking thread or block here
         // with a while (fileTransfer.getFileTransferStatus().isFinished()) loop
-        logger.info("Transfer");
+        Thread thread = new Thread(() -> {
+            long fileSize = event.getFilesize();
+            while (!fileTransfer.getFileTransferStatus().isFinished()) {
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                logger.debug("Downloaded: {}", fileTransfer.getFileTransferStatus().getBytesTransfered());
+                double progress = (double) fileTransfer.getFileTransferStatus().getBytesTransfered()/fileSize;
+                workPlace.send("setProgress", new WCMProgress(progress));
+            }
+            if (fileTransfer.getFileTransferStatus().isSuccessful()) {
+                workPlace.increaseAnimeDownload(animeName);
+                logger.debug("Increasing anime download successfully");
+            }
+        });
+        thread.setName("FileTransferStatus");
+        thread.start();
+        logger.debug("Transfer started");
         fileTransfer.transfer();
     }
 }
