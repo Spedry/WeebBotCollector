@@ -7,7 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sk.spedry.weebbotcollector.ircbot.WBCService;
 import sk.spedry.weebbotcollector.util.WCMAnime;
-import sk.spedry.weebbotcollector.util.WCMServer;
+import sk.spedry.weebbotcollector.util.WCMProgress;
 import sk.spedry.weebbotcollector.util.WCMSetup;
 import sk.spedry.weebbotcollector.util.WCMessage;
 import sk.spedry.weebbotcollector.util.lists.AnimeList;
