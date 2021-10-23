@@ -134,12 +134,12 @@ public class WBCWorkPlace extends WBCMessageSender {
     }
 
     public WCMSetup getSetup() {
-        return new Gson().fromJson(getJsonObject(propertiesFile + "setup.json"), WCMSetup.class);
+        return new Gson().fromJson(getJsonObject(propertiesFolder + "setup.json"), WCMSetup.class);
     }
 
     /**
      * Methods that communicate with client
-     *
+     * all ends with sendMessage();
      */
 
     public void send(String id, Object object) {
@@ -176,7 +176,7 @@ public class WBCWorkPlace extends WBCMessageSender {
 
     public void setSetup(WCMessage wcMessage) {
         try {
-            FileWriter fileWriter = new FileWriter(propertiesFile + "setup.json");
+            FileWriter fileWriter = new FileWriter(propertiesFolder + "setup.json");
             WCMSetup setup = new Gson().fromJson(wcMessage.getMessageBody(), WCMSetup.class);
             new Gson().toJson(setup, fileWriter);
             fileWriter.close();
@@ -206,21 +206,20 @@ public class WBCWorkPlace extends WBCMessageSender {
         }
     }
 
-    public void updateAnime(WCMessage wcMessage) {
+    private void saveUpdatedAnime(WCMAnime anime) {
         try {
-            AnimeList animeList = getAnimeList(animeListFile);
+            AnimeList animeList = getAnimeList();
             // put file reader after the file was read, file reader will delete it's content
             FileWriter fileWriter = new FileWriter(animeListFile);
             // edit existing anime in the list
-            WCMAnime wcmAnime = new Gson().fromJson(wcMessage.getMessageBody(), WCMAnime.class);
-            animeList.updateAnime(wcmAnime.getId(), wcmAnime);
-            logger.debug("Update anime entry with id: {}", wcmAnime.getId());
+            animeList.updateAnime(anime.getId(), anime);
+            logger.debug("Update anime entry with id: {}", anime.getId());
             // save content of the list into file
             new Gson().toJson(animeList, fileWriter);
             fileWriter.close();
             send("editAnimeEntry", getAnimeList());
         } catch (IOException e) {
-            logger.error("File reader: ", e);
+            e.printStackTrace();
         }
     }
 
