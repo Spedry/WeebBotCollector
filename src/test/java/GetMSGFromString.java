@@ -26,8 +26,8 @@ public class GetMSGFromString {
         if (receivedMessage.contains("/MSG")) {
             logger.info("MSG: " + receivedMessage);
 
-            for (WCMAnime anime : workPlace.getAnimeList(workPlace.getAnimeListFile()).getAnimeList()) {
-                if (receivedMessage.contains(anime.getTypeOfQuality())) {
+            for (WCMAnime anime : workPlace.getAnimeList().getAnimeList()) {
+                if (receivedMessage.contains(anime.getTypeOfQuality().getName())) {
                     if (receivedMessage.contains(anime.getAnimeName())) {
                         // TODO option to choose server
                         downloadMessage = receivedMessage.substring(receivedMessage.lastIndexOf("/MSG") + 4);
@@ -36,9 +36,9 @@ public class GetMSGFromString {
                 }
             }
 
-            String[] splited = downloadMessage.split("\\|");
-            logger.info("Target: " + splited[0]);
-            logger.info("Msg: " + splited[1]);
+            String[] spliced = downloadMessage.split("\\|");
+            logger.info("Target: " + spliced[0]);
+            logger.info("Msg: " + spliced[1]);
         }
     }
 
