@@ -11,6 +11,7 @@ import org.pircbotx.hooks.events.PrivateMessageEvent;
 import org.pircbotx.hooks.types.GenericMessageEvent;
 import sk.spedry.weebbotcollector.ircbot.util.AlreadyDownloadingAnime;
 import sk.spedry.weebbotcollector.util.WCMAnime;
+import sk.spedry.weebbotcollector.util.WCMProgress;
 import sk.spedry.weebbotcollector.work.WBCWorkPlace;
 
 import java.nio.file.Files;
@@ -56,7 +57,7 @@ public class IRCBotListener extends ListenerAdapter {
         if (receivedMessage.contains("/msg")) {
             logger.info("MSG: " + receivedMessage);
             logger.debug("Going through all anime entries in jsonListFile: animeList.json");
-            for (WCMAnime anime : workPlace.getAnimeList(workPlace.getAnimeListFile()).getAnimeList()) {
+            for (WCMAnime anime : workPlace.getAnimeList().getAnimeList()) {
                 logger.debug("Testing if anime quality matches");
                 if (receivedMessage.contains(anime.getTypeOfQuality().getName().toLowerCase())) {
                     logger.info("Testing if anime name matches");
@@ -100,7 +101,7 @@ public class IRCBotListener extends ListenerAdapter {
         if (receivedMessage.contains("/msg")) {
             logger.info("MSG: " + receivedMessage);
             logger.debug("Going through all anime entries in jsonListFile: animeList.json");
-            for (WCMAnime anime : workPlace.getAnimeList(workPlace.getAnimeListFile()).getAnimeList()) {
+            for (WCMAnime anime : workPlace.getAnimeList().getAnimeList()) {
                 logger.debug("Testing if anime quality matches");
                 if (receivedMessage.contains(anime.getTypeOfQuality().getName().toLowerCase())) {
                     logger.info("Testing if anime name matches");
@@ -114,8 +115,8 @@ public class IRCBotListener extends ListenerAdapter {
             }
             if (downloadMessage != null) {
                 String[] spliced = botCommands.splitDownloadMessage(downloadMessage);
-                String botName = spliced[1];
-                String message = spliced[2];
+                String botName = spliced[0];
+                String message = spliced[1];
                 logger.debug("Spliced downloadMessage: bot[{}] anime[{}]", botName, message);
                 for (AlreadyDownloadingAnime ADA : alreadyDownloadingAnime) {
                     if (ADA.getMessage().contains(message))
@@ -149,7 +150,7 @@ public class IRCBotListener extends ListenerAdapter {
         }
         logger.debug("Testing if received file contains name of anime from download list");
         testReceivedFile : try {
-            for (WCMAnime anime : workPlace.getAnimeList(workPlace.getAnimeListFile()).getAnimeList()) {
+            for (WCMAnime anime : workPlace.getAnimeList().getAnimeList()) {
                 if (receivedFileName.contains(anime.getAnimeName())) {
                     animeName = anime.getAnimeName();
                     break testReceivedFile;
@@ -182,5 +183,4 @@ public class IRCBotListener extends ListenerAdapter {
         logger.info("Transfer");
         fileTransfer.transfer();
     }
-
 }
