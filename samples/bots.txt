@@ -5,4 +5,4 @@ CR-ARUTHA-IPv6|NEW
 ARUTHA-BATCH|1080p
 ARUTHA-BATCH|720p
 ARUTHA-BATCH|SD
-Ginpachi-Sensei
+Ginpachi-Sensei - doesnt work
