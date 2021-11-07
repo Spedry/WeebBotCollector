@@ -13,6 +13,12 @@ From #SubsPlease, come join the one stop shop for new anime * [1.1G] * [SubsPlea
 /MSG Ginpachi-Sensei        xdcc send 3171
 
 Test: <CR-HOLLAND|NEW> From #SubsPlease, come join the one stop shop for new anime * [1.1G] * [SubsPlease] The Defective - 13 (540p) [4C3303CD].mkv * /msg CR-HOLLAND|NEW xdcc send #18838
-
+Test: From #SubsPlease, come join the one stop shop for new anime * [224M] * [SubsPlease] Yakunara Mug Cup mo S2 - 05 (480p) [AE0EC13A].mkv * /MSG CR-ARUTHA|NEW XDCC SEND 19197
+Test: From #SubsPlease, come join the one stop shop for new anime * [224M] * [SubsPlease] Yakunara Mug Cup mo S2 - 06 (480p) [AE0EC13A].mkv * /msg CR-HOLLAND|NEW xdcc send #19369
 
 <CR-ARUTHA|NEW> From #SubsPlease, come join the one stop shop for new anime * [356M] * [SubsPlease] World Trigger S3 - 02 (480p) [83978134].mkv * /MSG CR-ARUTHA|NEW XDCC SEND 18886
+
+Splice num: 0 - From #SubsPlease, come join the one stop shop for new anime
+Splice num: 1 -  [1.1G]
+Splice num: 2 -  [SubsPlease] The Defective - 13 (540p) [4C3303CD].mkv
+Splice num: 3 -  /msg CR-HOLLAND|NEW xdcc send #18838
