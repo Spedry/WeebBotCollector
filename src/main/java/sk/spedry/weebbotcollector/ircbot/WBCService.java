@@ -2,7 +2,6 @@ package sk.spedry.weebbotcollector.ircbot;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import sk.spedry.weebbotcollector.util.WCMessage;
 import sk.spedry.weebbotcollector.work.WBCWorkPlace;
 
 public class WBCService {
