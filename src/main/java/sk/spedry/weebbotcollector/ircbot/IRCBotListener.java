@@ -8,18 +8,19 @@ import org.pircbotx.hooks.ListenerAdapter;
 import org.pircbotx.hooks.events.IncomingFileTransferEvent;
 import org.pircbotx.hooks.events.MessageEvent;
 import org.pircbotx.hooks.events.PrivateMessageEvent;
-import org.pircbotx.hooks.types.GenericMessageEvent;
-import sk.spedry.weebbotcollector.ircbot.util.AlreadyDownloadingAnime;
+import sk.spedry.weebbotcollector.ircbot.util.DownloadMessage;
+import sk.spedry.weebbotcollector.ircbot.util.SplittedMessage;
 import sk.spedry.weebbotcollector.util.WCMAnime;
 import sk.spedry.weebbotcollector.util.WCMProgress;
 import sk.spedry.weebbotcollector.work.WBCWorkPlace;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Objects;
 
 public class IRCBotListener extends ListenerAdapter {
 
@@ -30,7 +31,9 @@ public class IRCBotListener extends ListenerAdapter {
     private final WBCWorkPlace workPlace;
     private final IRCBotCommands botCommands;
     //TODO think about this
-    private List<AlreadyDownloadingAnime> alreadyDownloadingAnime = new ArrayList<AlreadyDownloadingAnime>();
+    //private List<AlreadyDownloadingAnime> alreadyDownloadingAnime = new ArrayList<AlreadyDownloadingAnime>();
+    private ArrayList<DownloadMessage> downloadQueue = new ArrayList<DownloadMessage>();
+    private ReceiveFileTransfer fileTransfer;
     @Setter
     // TODO ADD OPTIONS TO SET THIS VALUE FROM APP/INIT THIS VALUE WHEN BOT IS CREATED
     // one GB = 1 000 000 00 bytes for info
@@ -41,48 +44,61 @@ public class IRCBotListener extends ListenerAdapter {
         this.workPlace = workPlace;
         this.botCommands = botCommands;
     }
-     @Override
+
+    /*@Override
     public void onGenericMessage(GenericMessageEvent event) throws Exception {
         logger.debug("Generic message: {}", event.getMessage());
-    }
+    }*/
 
     @Override
     public void onMessage(MessageEvent event) {
         final String receivedMessage = event.getMessage().toLowerCase();
-        String downloadMessage = null;
+        String message = null;
 
         if (logger.isDebugEnabled())
             logger.debug("Received message: " + receivedMessage);
 
         if (receivedMessage.contains("/msg")) {
-            logger.info("MSG: " + receivedMessage);
-            logger.debug("Going through all anime entries in jsonListFile: animeList.json");
+            SplittedMessage splittedMessage = new SplittedMessage(receivedMessage);
+
+            logger.trace("Going through all anime entries in jsonListFile: animeList.json");
             for (WCMAnime anime : workPlace.getAnimeList().getAnimeList()) {
-                logger.debug("Testing if anime quality matches");
-                if (receivedMessage.contains(anime.getTypeOfQuality().getName().toLowerCase())) {
-                    logger.info("Testing if anime name matches");
-                    if (receivedMessage.contains(anime.getAnimeName().toLowerCase())) {
+                if (splittedMessage.getAnimeName().contains(anime.getTypeOfQuality().getName().toLowerCase())) {
+                    if (splittedMessage.getAnimeName().contains(anime.getAnimeName().toLowerCase())) {
                         // TODO MATCH WITH BOT IF CHOSEN
                         // check if user specified bot from who our bot should be downloading
-                        downloadMessage = receivedMessage.substring(receivedMessage.lastIndexOf("/msg"));
+                        message = receivedMessage.substring(receivedMessage.lastIndexOf("/msg"));
                         break;
                     }
                 }
             }
-            if (downloadMessage != null) {
-                String[] spliced = botCommands.splitDownloadMessage(downloadMessage);
-                String botName = spliced[1];
-                String message = spliced[2];
-                logger.debug("Spliced downloadMessage: bot[{}] anime[{}]", botName, message);
-                for (AlreadyDownloadingAnime ADA : alreadyDownloadingAnime) {
-                    if (ADA.getMessage().contains(message))
+
+            if (message != null) {
+                logger.debug("Spliced message: bot[{}] anime[{}]", splittedMessage.getDownloadMessage().getBotName(), splittedMessage.getDownloadMessage().getMessage());
+
+                //TODO CHANGE TO TEST IF CURRENT ANIME ISN'T THE SAME
+                /*for (AlreadyDownloadingAnime ADA : alreadyDownloadingAnime) {
+                    if (ADA.getMessage().contains(message)) {
+                        logger.debug("This anime {}, is already being downloaded", splittedMessage.getAnimeName());
                         return;
+                    }
+                }*/
+
+                //TODO ADD TEST IF ANIME ISN'T IN QUEUE
+
+                File folder = new File(downloadFolder);
+                File[] listOfFiles = folder.listFiles();
+                assert listOfFiles != null;
+                for (File file : listOfFiles) {
+                    if (file.getName().contains(receivedMessage)) {
+                        logger.debug("This anime {}, is already downloaded", splittedMessage.getAnimeName());
+                        return;
+                    }
                 }
-                alreadyDownloadingAnime.add(new AlreadyDownloadingAnime(message, botName));
-                botCommands.sendMessage(botName, message);
-            }
-            else {
-                logger.warn("DownloadMessage was null");
+
+                botCommands.sendMessage(
+                        splittedMessage.getDownloadMessage().getBotName(),
+                        splittedMessage.getDownloadMessage().getMessage());
             }
         }
     }
@@ -92,55 +108,93 @@ public class IRCBotListener extends ListenerAdapter {
     //}
     @Override
     public void onPrivateMessage(PrivateMessageEvent event) {
+        // DONT ADD
+        if (!Objects.requireNonNull(event.getUser()).toString().toLowerCase().contains("spedry"))
+            return;
+        // THIS
         final String receivedMessage = event.getMessage().toLowerCase();
-        String downloadMessage = null;
+        String message = null;
 
-        if (logger.isDebugEnabled())
-            logger.debug("Received message: " + receivedMessage);
+        logger.debug("Received message: " + receivedMessage);
 
         if (receivedMessage.contains("/msg")) {
-            logger.info("MSG: " + receivedMessage);
-            logger.debug("Going through all anime entries in jsonListFile: animeList.json");
+            SplittedMessage splittedMessage = new SplittedMessage(receivedMessage);
+
+            logger.trace("Going through all anime entries in jsonListFile: animeList.json");
             for (WCMAnime anime : workPlace.getAnimeList().getAnimeList()) {
-                logger.debug("Testing if anime quality matches");
-                if (receivedMessage.contains(anime.getTypeOfQuality().getName().toLowerCase())) {
-                    logger.info("Testing if anime name matches");
-                    if (receivedMessage.contains(anime.getAnimeName().toLowerCase())) {
+                if (splittedMessage.getAnimeName().contains(anime.getTypeOfQuality().getName().toLowerCase())) {
+                    if (splittedMessage.getAnimeName().contains(anime.getAnimeName().toLowerCase())) {
                         // TODO MATCH WITH BOT IF CHOSEN
                         // check if user specified bot from who our bot should be downloading
-                        downloadMessage = receivedMessage.substring(receivedMessage.lastIndexOf("/msg"));
+                        message = receivedMessage.substring(receivedMessage.lastIndexOf("/msg"));
                         break;
                     }
                 }
             }
-            if (downloadMessage != null) {
-                String[] spliced = botCommands.splitDownloadMessage(downloadMessage);
-                String botName = spliced[0];
-                String message = spliced[1];
-                logger.debug("Spliced downloadMessage: bot[{}] anime[{}]", botName, message);
-                for (AlreadyDownloadingAnime ADA : alreadyDownloadingAnime) {
-                    if (ADA.getMessage().contains(message))
+
+            if (message != null) {
+                logger.debug("Spliced message: bot[{}] anime[{}]", splittedMessage.getDownloadMessage().getBotName(), splittedMessage.getDownloadMessage().getMessage());
+                //TODO CHANGE TO TEST IF CURRENT ANIME ISN'T THE SAME
+                /*for (AlreadyDownloadingAnime ADA : alreadyDownloadingAnime) {
+                    if (ADA.getMessage().contains(message)) {
+                        logger.debug("This anime {}, is already being downloaded", splittedMessage.getAnimeName());
                         return;
+                    }
+                }*/
+
+                //TODO ADD TEST IF ANIME ISN'T IN QUEUE
+
+                String animeName = null;
+                for (WCMAnime anime : workPlace.getAnimeList().getAnimeList()) {
+                    if (receivedMessage.contains(anime.getAnimeName().toLowerCase())) {
+                        animeName = anime.getAnimeName();
+                        break;
+                    }
                 }
-                alreadyDownloadingAnime.add(new AlreadyDownloadingAnime(message, botName));
-                botCommands.sendMessage(botName, message);
-            }
-            else {
-                logger.warn("DownloadMessage was null");
+                if (animeName == null)
+                    return;
+                File folder = new File(downloadFolder + "/" + animeName);
+                File[] listOfFiles = folder.listFiles();
+                assert listOfFiles != null;
+                if (folder.exists()) {
+                    for (File file : listOfFiles) {
+                        if (receivedMessage.contains(file.getName().toLowerCase())) {
+                            logger.debug("This anime {}, is already downloaded", splittedMessage.getAnimeName());
+                            return;
+                        }
+                    }
+                }
+
+                /*alreadyDownloadingAnime.add(new AlreadyDownloadingAnime(
+                        splittedMessage.getDownloadMessage().getMessage(),
+                        splittedMessage.getDownloadMessage().getBotName()));*/
+
+                if (fileTransfer != null && fileTransfer.getFileTransferStatus().isAlive()) {
+                    downloadQueue.add(new DownloadMessage(
+                            splittedMessage.getDownloadMessage().getBotName(),
+                            splittedMessage.getDownloadMessage().getMessage()));
+                }
+                else {
+                    botCommands.sendMessage(
+                            splittedMessage.getDownloadMessage().getBotName(),
+                            splittedMessage.getDownloadMessage().getMessage());
+                }
+                for (DownloadMessage downloadMessage : downloadQueue)
+                    logger.info(downloadMessage.getMessage());
             }
         }
     }
 
     @Override
     public void onIncomingFileTransfer(IncomingFileTransferEvent event) throws Exception {
-        logger.debug("On incoming file transfer started");
+        logger.debug("On incoming file transfer method started");
         super.onIncomingFileTransfer(event);
 
         String receivedFileName = event.getSafeFilename(), animeName;
 
-        logger.debug("Testing if maxFileSize isn't null");
-        if (maxFileSize == 0) {
-            logger.error("Variable maxFileSite in null");
+        logger.debug("Testing if maxFileSize isn't smaller zero");
+        if (maxFileSize < 0) {
+            logger.error("Variable maxFileSize is smaller zero");
             return;
         }
         logger.debug("Testing if file isn't over file size limit");
@@ -165,7 +219,6 @@ public class IRCBotListener extends ListenerAdapter {
         String downloadFolder = this.downloadFolder + "/" + animeName;
         workPlace.createFolder(downloadFolder);
         Path path = Paths.get( downloadFolder + "/" + receivedFileName);
-        ReceiveFileTransfer fileTransfer;
         
         if (path.toFile().exists()) {
             // Use BasicFileAttributes to find position to resume
@@ -188,13 +241,17 @@ public class IRCBotListener extends ListenerAdapter {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                logger.debug("Downloaded: {}", fileTransfer.getFileTransferStatus().getBytesTransfered());
+                //logger.debug("Downloaded: {}", fileTransfer.getFileTransferStatus().getBytesTransfered());
                 double progress = (double) fileTransfer.getFileTransferStatus().getBytesTransfered()/fileSize;
                 workPlace.send("setProgress", new WCMProgress(progress));
             }
             if (fileTransfer.getFileTransferStatus().isSuccessful()) {
                 workPlace.increaseAnimeDownload(animeName);
                 logger.debug("Increasing anime download successfully");
+                if (!downloadQueue.isEmpty()) {
+                    logger.debug("Starting another download");
+                    botCommands.sendMessage(downloadQueue.remove(0));
+                }
             }
         });
         thread.setName("FileTransferStatus");
