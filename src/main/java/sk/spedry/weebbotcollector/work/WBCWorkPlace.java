@@ -26,7 +26,7 @@ public class WBCWorkPlace extends WBCMessageSender {
 
     private final String userDir = System.getProperty("user.dir");
     private final String propertiesFolder = userDir + "/properties/";
-    private final String jsonListFolder = propertiesFolder + "jsonListFile/";
+    private final String jsonListFolder = propertiesFolder + "jsonListFolder/";
     @Getter
     private final String animeListFile = jsonListFolder + "animeList.json";
 
@@ -42,7 +42,8 @@ public class WBCWorkPlace extends WBCMessageSender {
         File directory = new File(path);
         if (!directory.exists()){
             logger.debug("Creating folder: {}", path);
-            directory.mkdirs();
+            if(directory.mkdirs())
+                logger.debug("Folder created");
         }
     }
 
@@ -50,7 +51,7 @@ public class WBCWorkPlace extends WBCMessageSender {
         try {
             File file = new File(pathTo);
             if (!file.createNewFile()) {
-                logger.debug("File {} already exists", file.getName());
+                //logger.debug("File {} already exists", file.getName());
                 if (file.length() == 0) {
                     logger.debug("File {} was empty", file.getName());
                     return new JsonArray();
@@ -58,7 +59,6 @@ public class WBCWorkPlace extends WBCMessageSender {
                 else {
                     FileReader fileReader = new FileReader(pathTo);
                     JsonObject jsonObject = (JsonObject) JsonParser.parseReader(fileReader);
-                    logger.debug("The content of json is: " + jsonObject);
                     return (JsonArray) jsonObject.get("list");
                 } // else read the content and save it into jsonArray
             } // if the file exists check if file isn't empty
@@ -100,7 +100,7 @@ public class WBCWorkPlace extends WBCMessageSender {
         AnimeList animeList = new AnimeList();
         JsonArray jsonArray = getJsonArray(animeListFile);
         Iterator<JsonElement> iterator = jsonArray.iterator();
-        // put already existed animes into list
+        // put already existed anime into list
         int pos = 0;
         while (iterator.hasNext()) {
             WCMAnime wcmAnime = new Gson().fromJson(iterator.next().toString(), WCMAnime.class);
@@ -126,13 +126,6 @@ public class WBCWorkPlace extends WBCMessageSender {
         return null;
     }
 
-    public void increaseAnimeDownload(@NonNull String animeName) {
-        WCMAnime anime = getAnime(animeName);
-        anime.increaseNumberOfDownloadedEpisodes();
-        saveUpdatedAnime(anime);
-        send("setProgress", new WCMProgress(0));
-    }
-
     public WCMSetup getSetup() {
         return new Gson().fromJson(getJsonObject(propertiesFolder + "setup.json"), WCMSetup.class);
     }
@@ -140,6 +133,38 @@ public class WBCWorkPlace extends WBCMessageSender {
     /**
      * Methods that communicate with client
      * all ends with sendMessage();
+     * aren't used in switch
+     */
+
+    public void increaseAnimeDownload(@NonNull String animeName) {
+        WCMAnime anime = getAnime(animeName);
+        assert anime != null;
+        anime.increaseNumberOfDownloadedEpisodes();
+        saveUpdatedAnime(anime);
+        send("setProgress", new WCMProgress(0));
+    }
+
+    private void saveUpdatedAnime(WCMAnime anime) {
+        try {
+            AnimeList animeList = getAnimeList();
+            // put file reader after the file was read, file reader will delete it's content
+            FileWriter fileWriter = new FileWriter(animeListFile);
+            // edit existing anime in the list
+            animeList.updateAnime(anime.getId(), anime);
+            logger.debug("Update anime entry with id: {}", anime.getId());
+            // save content of the list into file
+            new Gson().toJson(animeList, fileWriter);
+            fileWriter.close();
+            send("editAnimeEntry", getAnimeList());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Methods that communicate with client
+     * all ends with sendMessage();
+     * are used in switch
      */
 
     public void send(String id, Object object) {
@@ -180,7 +205,7 @@ public class WBCWorkPlace extends WBCMessageSender {
             WCMSetup setup = new Gson().fromJson(wcMessage.getMessageBody(), WCMSetup.class);
             new Gson().toJson(setup, fileWriter);
             fileWriter.close();
-            send("getSetup", getSetup());
+            send(wcMessage.getMessageId(), getSetup());
         } catch (IOException e) {
             logger.error("Couldn't find the file in given path", e);
         }
@@ -203,23 +228,6 @@ public class WBCWorkPlace extends WBCMessageSender {
                 !setup.getChannelName().isEmpty()) {
             service.createBotThread(this);
             send(wcMessage.getMessageId());
-        }
-    }
-
-    private void saveUpdatedAnime(WCMAnime anime) {
-        try {
-            AnimeList animeList = getAnimeList();
-            // put file reader after the file was read, file reader will delete it's content
-            FileWriter fileWriter = new FileWriter(animeListFile);
-            // edit existing anime in the list
-            animeList.updateAnime(anime.getId(), anime);
-            logger.debug("Update anime entry with id: {}", anime.getId());
-            // save content of the list into file
-            new Gson().toJson(animeList, fileWriter);
-            fileWriter.close();
-            send("editAnimeEntry", getAnimeList());
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
