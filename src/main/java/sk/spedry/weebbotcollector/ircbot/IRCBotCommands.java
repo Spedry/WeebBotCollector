@@ -3,6 +3,7 @@ package sk.spedry.weebbotcollector.ircbot;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pircbotx.PircBotX;
+import sk.spedry.weebbotcollector.ircbot.util.DownloadMessage;
 
 public class IRCBotCommands {
 
@@ -19,12 +20,8 @@ public class IRCBotCommands {
         bot.sendIRC().message(target, message);
     }
 
-    public String[] splitDownloadMessage(String downloadMessage) {
-        logger.info("Splitting this msg: {}", downloadMessage);
-        String[] spliced = downloadMessage.split(" ");
-        String botName = spliced[1];
-        String message = spliced[2] + " " + spliced[3] + " " + spliced[4];
-        return new String[] {botName, message};
+    public void sendMessage(DownloadMessage message) {
+        logger.info("Sending message: " + message.getMessage() + " to: " + message.getBotName());
+        bot.sendIRC().message(message.getBotName(), message.getMessage());
     }
-
 }
