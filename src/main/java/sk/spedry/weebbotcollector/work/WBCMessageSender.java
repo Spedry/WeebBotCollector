@@ -34,7 +34,7 @@ public class WBCMessageSender {
     public void sendMessage(String message) {
         if (out != null)
             out.println(message);
-        else
-            logger.error("Print writer is null");
+        //else
+        //    logger.error("Print writer is null");
     }
 }
