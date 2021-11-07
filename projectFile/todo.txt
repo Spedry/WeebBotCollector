@@ -4,6 +4,7 @@
 - add option for user to chose from what bot download anime only
 - options do download already released anime
 - abort unwanted download
+- replace sliced String[] with object
 
 # ANSWER TO THIS #
 
