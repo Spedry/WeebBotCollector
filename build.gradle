@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'com.github.jk1.dependency-license-report' version '2.0'
 }
 
 group 'sk.spedry.weebbotcollector'
@@ -9,7 +10,7 @@ jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
     manifest {
-        attributes 'Main-Class': 'sk.spedry.weebbotcollector.WBCApplication'
+        attributes "Main-Class": "sk.spedry.weebbotcollector.WBCApplication"
     }
     from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
 //    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
@@ -33,13 +34,15 @@ tasks.withType(JavaCompile) {
 
 dependencies {
     // JUNIT
-    testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
+    //testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
+    //testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
     // PIRCBOTX
     /*implementation("com.github.pircbotx:pircbotx:2.2") {
         exclude(group: "org.slf4j", module: "slf4j-api")
     }*/
-    implementation 'com.github.pircbotx:pircbotx:master-SNAPSHOT'
+    implementation ("com.github.pircbotx:pircbotx:master-SNAPSHOT") {
+        exclude(group: "org.slf4j", module: "slf4j-api")
+    }
     // LOG4J
     implementation ("org.apache.logging.log4j:log4j-api:2.14.1")
     implementation ("org.apache.logging.log4j:log4j-core:2.14.1")
@@ -50,6 +53,7 @@ dependencies {
     // GSON
     implementation 'com.google.code.gson:gson:2.8.8'
     // SLF4J
+    // only used when debugging pirc botx
     // https://mvnrepository.com/artifact/org.slf4j/slf4j-log4j12
     implementation group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.32'
 
