@@ -265,9 +265,14 @@ public class IRCBotListener extends ListenerAdapter {
     public void onIncomingFileTransfer(IncomingFileTransferEvent event) throws Exception {
         logger.debug("On incoming file transfer method started");
         super.onIncomingFileTransfer(event);
+        // RECEIVED FILE NAME
+        String receivedFileName = event.getSafeFilename();
+        // ANIME NAME FROM ANIME LIST
+        String animeName;
+        // FILE SIZE OF RECEIVED (Anime) FILE
+        long fileSize = event.getFilesize();
 
-        String receivedFileName = event.getSafeFilename(), animeName;
-
+        // SOME TESTS BEFORE DOWNLOAD
         logger.debug("Testing if maxFileSize isn't smaller zero");
         if (maxFileSize < 0) {
             logger.error("Variable maxFileSize is smaller zero");
@@ -279,7 +284,7 @@ public class IRCBotListener extends ListenerAdapter {
             return;
         }
         logger.debug("Testing if received file contains name of anime from download list");
-        testReceivedFile : try {
+        testReceivedFile: try {
             for (WCMAnime anime : workPlace.getAnimeList().getAnimeList()) {
                 if (receivedFileName.contains(anime.getAnimeName())) {
                     animeName = anime.getAnimeName();
@@ -292,25 +297,28 @@ public class IRCBotListener extends ListenerAdapter {
             return;
         }
 
-        String downloadFolder = this.downloadFolder + "/" + animeName;
-        workPlace.createFolder(downloadFolder);
-        Path path = Paths.get( downloadFolder + "/" + receivedFileName);
-        
+        // CREATE ANIME FOLDER WHERE ALL ANIME EP WILL BE PLACED
+        // IF ANIME FOLDER EXISTS DO NOTHING
+        workPlace.createFolder(this.downloadFolder + "/" + animeName);
+        Path path = Paths.get(downloadFolder + "/" + receivedFileName);
+
+        // TODO IF ANIME EXISTS CHECK IF IS FULLY DOWNLOADED OR DOWNLOAD REST
         if (path.toFile().exists()) {
-            // Use BasicFileAttributes to find position to resume
             // TODO IF TO TEST IS EXISTING FILE == event.fileSize();
             logger.debug("File already exists, resuming where ended");
             fileTransfer = event.acceptResume(path.toFile(), Files.readAttributes(path, BasicFileAttributes.class).size());
         }
+        // ELSE ACCEPT FILE TRANSFER
         else {
             logger.debug("Accepting file transfer");
             fileTransfer = event.accept(path.toFile());
         }
-
-        // Give ReceiveFileTransfer to a new tracking thread or block here
-        // with a while (fileTransfer.getFileTransferStatus().isFinished()) loop
-        Thread thread = new Thread(() -> {
-            long fileSize = event.getFilesize();
+        
+        // THREAD THAT WILL KEEP AN EYE ON DOWNLOAD
+        Thread progressThread = new Thread(() -> {
+            // TELL CLIENT THAT THIS ANIME IS BEING DOWNLOADED
+            workPlace.send("setDownloadingAnimeName", new WCMAnimeName(animeName));
+            // CYCLE TO INFORM CLIENT ABOUT DOWNLOAD PROGRESS
             while (!fileTransfer.getFileTransferStatus().isFinished()) {
                 try {
                     Thread.sleep(5000);
@@ -318,23 +326,33 @@ public class IRCBotListener extends ListenerAdapter {
                     e.printStackTrace();
                 }
                 //logger.debug("Downloaded: {}", fileTransfer.getFileTransferStatus().getBytesTransfered());
-                double progress = (double) fileTransfer.getFileTransferStatus().getBytesTransfered()/fileSize;
+                double progress = (double) fileTransfer.getFileTransferStatus().getBytesTransfered() / fileSize;
+                // SEND PROGRESS
                 workPlace.send("setProgress", new WCMProgress(progress));
             }
+            // IF FILE TRANSFER WAS SUCCESSFUL
             if (fileTransfer.getFileTransferStatus().isSuccessful()) {
                 logger.debug("Clearing currently downloading variable");
                 currentlyDownloading = null;
                 workPlace.increaseAnimeDownload(animeName);
-                logger.debug("Increasing anime download successfully");
+                // START ANOTHER DOWNLOAD IF THERE IS ANY IN QUEUE
                 if (!downloadQueue.isEmpty()) {
                     logger.debug("Starting another download");
                     botCommands.sendMessage(downloadQueue.remove(0));
+                    workPlace.send("setDownloadingAnimeName", new WCMAnimeName(""));
                 }
             }
+            // TODO SOMETHING WENT WRONG
+            else {
+                logger.error("FILE TRANSFER WASN'T SUCCESSFUL");
+            }
         });
-        thread.setName("FileTransferStatus");
-        thread.start();
-        logger.debug("Transfer started");
+        progressThread.setName("FileTransferStatus");
+
+        progressThread.start();
+        logger.debug("Transfer of {} started, with {} size", animeName, botWorkPlace.bytesToReadable(fileSize));
+        //TODO AFTER SOME TIME TEST IF DOWNLOAD STARTED OR NOT
+        // IF NOT CLEAR CURRENT DOWNLOAD VARIABLE
         fileTransfer.transfer();
     }
 }
