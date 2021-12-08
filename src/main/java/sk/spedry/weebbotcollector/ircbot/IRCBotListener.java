@@ -29,6 +29,7 @@ public class IRCBotListener extends ListenerAdapter {
     @Setter
     private String downloadFolder;
     private final WBCWorkPlace workPlace;
+    private final IRCBotWorkPlace botWorkPlace;
     private final IRCBotCommands botCommands;
     private DownloadMessage currentlyDownloading;
     private ArrayList<DownloadMessage> downloadQueue = new ArrayList<DownloadMessage>();
@@ -46,6 +47,7 @@ public class IRCBotListener extends ListenerAdapter {
         this.downloadFolder = downloadFolder;
         this.workPlace = workPlace;
         this.botCommands = botCommands;
+        this.botWorkPlace = new IRCBotWorkPlace();
     }
 
     /*@Override
