@@ -25,7 +25,6 @@ public class SplittedMessage {
 
     private DownloadMessage splitDownloadMessage(String message) {
         String[] spliced = message.split(" ");
-        DownloadMessage downloadMessage = new DownloadMessage(spliced[1], spliced[2] + " " + spliced[3] + " " + spliced[4]);
-        return downloadMessage;
+        return new DownloadMessage(spliced[1], spliced[2] + " " + spliced[3] + " " + spliced[4], animeName);
     }
 }
