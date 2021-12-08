@@ -84,6 +84,7 @@ public class IRCBot extends ListenerAdapter implements Runnable {
                 //.setDccPorts(portList)
                 //.setDccPassiveRequest(true)
                 .setAutoReconnectDelay(() -> 60)
+                .setAutoReconnectAttempts(100)
                 // this option is set to true by default
                 // it means that the bot will safely disconnect
                 // from server/channel if thread is shutdown
