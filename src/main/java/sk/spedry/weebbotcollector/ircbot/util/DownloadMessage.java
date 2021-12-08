@@ -12,4 +12,6 @@ public class DownloadMessage {
     @Getter
     @Setter
     private String message;
+    @Getter
+    private String animeName;
 }
