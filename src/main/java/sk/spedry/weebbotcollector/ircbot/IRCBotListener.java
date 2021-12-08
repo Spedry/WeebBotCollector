@@ -34,9 +34,12 @@ public class IRCBotListener extends ListenerAdapter {
     //private List<AlreadyDownloadingAnime> alreadyDownloadingAnime = new ArrayList<AlreadyDownloadingAnime>();
     private ArrayList<DownloadMessage> downloadQueue = new ArrayList<DownloadMessage>();
     private ReceiveFileTransfer fileTransfer;
+
+    // BOT SETTINGS
     @Setter
     // TODO ADD OPTIONS TO SET THIS VALUE FROM APP/INIT THIS VALUE WHEN BOT IS CREATED
-    // one GB = 1 000 000 00 bytes for info
+    // one GB = 1 000 000 000 bytes for info DECIMAL = GB/1000
+    // one GB = 1 073 741 824 bytes for info BINARY = GB/1024
     private long maxFileSize = 2000000000; //2gb default
 
     public IRCBotListener(String downloadFolder, WBCWorkPlace workPlace, IRCBotCommands botCommands) {
