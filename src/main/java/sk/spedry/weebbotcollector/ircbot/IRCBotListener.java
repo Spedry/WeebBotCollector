@@ -11,6 +11,7 @@ import org.pircbotx.hooks.events.PrivateMessageEvent;
 import sk.spedry.weebbotcollector.ircbot.util.DownloadMessage;
 import sk.spedry.weebbotcollector.ircbot.util.SplittedMessage;
 import sk.spedry.weebbotcollector.util.WCMAnime;
+import sk.spedry.weebbotcollector.util.WCMAnimeName;
 import sk.spedry.weebbotcollector.util.WCMProgress;
 import sk.spedry.weebbotcollector.work.WBCWorkPlace;
 
@@ -66,8 +67,7 @@ public class IRCBotListener extends ListenerAdapter {
         final String receivedMessage = event.getMessage().toLowerCase();
         String message = null;
 
-        if (logger.isDebugEnabled())
-            logger.debug("Received message: " + receivedMessage);
+        logger.debug("Received message: " + receivedMessage);
 
         if (receivedMessage.contains("/msg")) {
             // TODO CHANGE IT
@@ -98,29 +98,58 @@ public class IRCBotListener extends ListenerAdapter {
                     return;
                 }
 
-                //TODO CHANGE TO TEST IF CURRENT ANIME ISN'T THE SAME
-                /*for (AlreadyDownloadingAnime ADA : alreadyDownloadingAnime) {
-                    if (ADA.getMessage().contains(message)) {
-                        logger.debug("This anime {}, is already being downloaded", splittedMessage.getAnimeName());
-                        return;
-                    }
-                }*/
-
-                //TODO ADD TEST IF ANIME ISN'T IN QUEUE
-
-                File folder = new File(downloadFolder);
-                File[] listOfFiles = folder.listFiles();
-                assert listOfFiles != null;
-                for (File file : listOfFiles) {
-                    if (file.getName().contains(receivedMessage)) {
-                        logger.debug("This anime {}, is already downloaded", splittedMessage.getAnimeName());
+                // TEST IF ANIME ISN'T ALREADY IN QUEUE
+                for (DownloadMessage downloadMessage : downloadQueue) {
+                    if (splittedMessage.getAnimeName().contains(downloadMessage.getAnimeName())) {
+                        logger.debug("This anime {}, is already queue", splittedMessage.getAnimeName());
                         return;
                     }
                 }
 
-                botCommands.sendMessage(
-                        splittedMessage.getDownloadMessage().getBotName(),
-                        splittedMessage.getDownloadMessage().getMessage());
+                // GET ANIME NAME
+                String animeName = null;
+                for (WCMAnime anime : workPlace.getAnimeList().getAnimeList()) {
+                    if (receivedMessage.contains(anime.getAnimeName().toLowerCase())) {
+                        animeName = anime.getAnimeName();
+                        break;
+                    }
+                }
+                if (animeName == null)
+                    return;
+
+                // TEST IF ANIME ISN'T ALREADY DOWNLOADED
+                File folder = new File(downloadFolder + "/" + animeName);
+                File[] listOfFiles = folder.listFiles();
+                assert listOfFiles != null;
+                if (folder.exists()) {
+                    for (File file : listOfFiles) {
+                        if (receivedMessage.contains(file.getName().toLowerCase())) {
+                            logger.debug("This anime {}, is already downloaded", splittedMessage.getAnimeName());
+                            return;
+                        }
+                    }
+                }
+
+                // TEST IF IS SOMETHING IS BEING DOWNLOADED
+                if (fileTransfer != null && fileTransfer.getFileTransferStatus().isAlive()) {
+                    // ADD ANIME INTO DOWNLOAD QUEUE
+                    downloadQueue.add(new DownloadMessage(
+                            splittedMessage.getDownloadMessage().getBotName(),
+                            splittedMessage.getDownloadMessage().getMessage(),
+                            splittedMessage.getAnimeName()));
+                }
+                else {
+                    // SEND DOWNLOAD MESSAGE
+                    botCommands.sendMessage(
+                            splittedMessage.getDownloadMessage().getBotName(),
+                            splittedMessage.getDownloadMessage().getMessage());
+                    currentlyDownloading = new DownloadMessage(
+                            splittedMessage.getDownloadMessage().getBotName(),
+                            splittedMessage.getDownloadMessage().getMessage(),
+                            splittedMessage.getAnimeName());
+                }
+                for (DownloadMessage downloadMessage : downloadQueue)
+                    logger.debug("Anime in download queue: {}", downloadMessage.getAnimeName());
             }
         }
     }
@@ -175,8 +204,15 @@ public class IRCBotListener extends ListenerAdapter {
                     return;
                 }
 
-                //TODO ADD TEST IF ANIME ISN'T IN QUEUE
+                // TEST IF ANIME ISN'T ALREADY IN QUEUE
+                for (DownloadMessage downloadMessage : downloadQueue) {
+                    if (splittedMessage.getAnimeName().contains(downloadMessage.getAnimeName())) {
+                        logger.debug("This anime {}, is already queue", splittedMessage.getAnimeName());
+                        return;
+                    }
+                }
 
+                // GET ANIME NAME
                 String animeName = null;
                 for (WCMAnime anime : workPlace.getAnimeList().getAnimeList()) {
                     if (receivedMessage.contains(anime.getAnimeName().toLowerCase())) {
@@ -186,6 +222,8 @@ public class IRCBotListener extends ListenerAdapter {
                 }
                 if (animeName == null)
                     return;
+
+                // TEST IF ANIME ISN'T ALREADY DOWNLOADED
                 File folder = new File(downloadFolder + "/" + animeName);
                 File[] listOfFiles = folder.listFiles();
                 assert listOfFiles != null;
@@ -198,16 +236,16 @@ public class IRCBotListener extends ListenerAdapter {
                     }
                 }
 
-                /*alreadyDownloadingAnime.add(new AlreadyDownloadingAnime(
-                        splittedMessage.getDownloadMessage().getMessage(),
-                        splittedMessage.getDownloadMessage().getBotName()));*/
-
+                // TEST IF IS SOMETHING IS BEING DOWNLOADED
                 if (fileTransfer != null && fileTransfer.getFileTransferStatus().isAlive()) {
+                    // ADD ANIME INTO DOWNLOAD QUEUE
                     downloadQueue.add(new DownloadMessage(
                             splittedMessage.getDownloadMessage().getBotName(),
-                            splittedMessage.getDownloadMessage().getMessage()));
+                            splittedMessage.getDownloadMessage().getMessage(),
+                            splittedMessage.getAnimeName()));
                 }
                 else {
+                    // SEND DOWNLOAD MESSAGE
                     botCommands.sendMessage(
                             splittedMessage.getDownloadMessage().getBotName(),
                             splittedMessage.getDownloadMessage().getMessage());
@@ -216,8 +254,9 @@ public class IRCBotListener extends ListenerAdapter {
                             splittedMessage.getDownloadMessage().getMessage(),
                             splittedMessage.getAnimeName());
                 }
+                // TODO do some more tests
                 for (DownloadMessage downloadMessage : downloadQueue)
-                    logger.info(downloadMessage.getMessage());
+                    logger.debug("Anime in download queue: {}", downloadMessage.getAnimeName());
             }
         }
     }
