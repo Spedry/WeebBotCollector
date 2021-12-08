@@ -41,6 +41,7 @@ public class IRCBotListener extends ListenerAdapter {
     // one GB = 1 000 000 000 bytes for info DECIMAL = GB/1000
     // one GB = 1 073 741 824 bytes for info BINARY = GB/1024
     private long maxFileSize = 2000000000; //2gb default
+    private boolean disIpv6 = true;
 
     public IRCBotListener(String downloadFolder, WBCWorkPlace workPlace, IRCBotCommands botCommands) {
         this.downloadFolder = downloadFolder;
@@ -55,6 +56,12 @@ public class IRCBotListener extends ListenerAdapter {
 
     @Override
     public void onMessage(MessageEvent event) {
+        logger.info("Bots name: {}", Objects.requireNonNull(event.getUser()).getNick());
+        if (disIpv6 && Objects.requireNonNull(event.getUser()).getNick().toLowerCase().contains("ipv6")) {
+            logger.debug("IPV6 is disabled");
+            return;
+        }
+
         final String receivedMessage = event.getMessage().toLowerCase();
         String message = null;
 
@@ -115,6 +122,12 @@ public class IRCBotListener extends ListenerAdapter {
         if (!Objects.requireNonNull(event.getUser()).toString().toLowerCase().contains("spedry"))
             return;
         // THIS
+
+        if (disIpv6 && Objects.requireNonNull(event.getUser()).getNick().toLowerCase().contains("ipv6")) {
+            logger.debug("IPV6 is disabled");
+            return;
+        }
+
         final String receivedMessage = event.getMessage().toLowerCase();
         String message = null;
 
