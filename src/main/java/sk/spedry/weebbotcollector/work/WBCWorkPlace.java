@@ -137,6 +137,7 @@ public class WBCWorkPlace extends WBCMessageSender {
      */
 
     public void increaseAnimeDownload(@NonNull String animeName) {
+        logger.debug("Increasing number of downloaded episodes of anime {}", animeName);
         WCMAnime anime = getAnime(animeName);
         assert anime != null;
         anime.increaseNumberOfDownloadedEpisodes();
