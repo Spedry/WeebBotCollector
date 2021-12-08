@@ -5,18 +5,28 @@
 - options do download already released anime
 - abort unwanted download
 - replace sliced String[] with object
+- better way to test if received msg is about releasing new anime
+- add option to open last downloaded anime/auto open after downloads end
+- change JSON to conf.properties
 
 # ANSWER TO THIS #
 
 ** You have a DCC pending, Set your client to receive the transfer. Type "/MSG CR-ARUTHA|NEW XDCC CANCEL" to abort the transfer. (30 seconds remaining until timeout)
 
-# DOWNLOAD ALD RELEASED ANIME #
+# DOWNLOAD OLD RELEASED ANIME #
 
 - use !search "anime name"
 
 # CHOSE OWN BOT #
 
 possible bots: samples/bots.txt
+
+# SEARCH ANIME RETURNS BOT WITH IPV6 #
+
+- if search returns anime from ipv6
+    a, remove ipv6, there should be bot names just like bot with ipv6 but without it
+    b, just replace it with another bots name
+    c, take number at the end and send message to another bot who has the same anime under this number
 
 problem:
 // if user wants to download from bot he chose, but:
