@@ -70,8 +70,15 @@ public class IRCBotListener extends ListenerAdapter {
             logger.debug("Received message: " + receivedMessage);
 
         if (receivedMessage.contains("/msg")) {
-            SplittedMessage splittedMessage = new SplittedMessage(receivedMessage);
-
+            // TODO CHANGE IT
+            SplittedMessage splittedMessage = null;
+            try {
+                splittedMessage = new SplittedMessage(receivedMessage);
+            } catch (Exception e) {
+                logger.error("Couldn't parse message");
+            }
+            if (splittedMessage == null)
+                return;
             logger.trace("Going through all anime entries in jsonListFile: animeList.json");
             for (WCMAnime anime : workPlace.getAnimeList().getAnimeList()) {
                 if (splittedMessage.getAnimeName().contains(anime.getTypeOfQuality().getName().toLowerCase())) {
@@ -139,8 +146,15 @@ public class IRCBotListener extends ListenerAdapter {
         logger.debug("Received message: " + receivedMessage);
 
         if (receivedMessage.contains("/msg")) {
-            SplittedMessage splittedMessage = new SplittedMessage(receivedMessage);
-
+            // TODO CHANGE IT
+            SplittedMessage splittedMessage = null;
+            try {
+                splittedMessage = new SplittedMessage(receivedMessage);
+            } catch (Exception e) {
+                logger.error("Couldn't parse message");
+            }
+            if (splittedMessage == null)
+                return;
             logger.trace("Going through all anime entries in jsonListFile: animeList.json");
             for (WCMAnime anime : workPlace.getAnimeList().getAnimeList()) {
                 if (splittedMessage.getAnimeName().contains(anime.getTypeOfQuality().getName().toLowerCase())) {
