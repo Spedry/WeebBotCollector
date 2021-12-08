@@ -30,8 +30,7 @@ public class IRCBotListener extends ListenerAdapter {
     private String downloadFolder;
     private final WBCWorkPlace workPlace;
     private final IRCBotCommands botCommands;
-    //TODO think about this
-    //private List<AlreadyDownloadingAnime> alreadyDownloadingAnime = new ArrayList<AlreadyDownloadingAnime>();
+    private DownloadMessage currentlyDownloading;
     private ArrayList<DownloadMessage> downloadQueue = new ArrayList<DownloadMessage>();
     private ReceiveFileTransfer fileTransfer;
 
@@ -84,7 +83,11 @@ public class IRCBotListener extends ListenerAdapter {
             }
 
             if (message != null) {
-                logger.debug("Spliced message: bot[{}] anime[{}]", splittedMessage.getDownloadMessage().getBotName(), splittedMessage.getDownloadMessage().getMessage());
+                // TEST IF ANIME ISN'T CURRENTLY BEING DOWNLOADED
+                if (currentlyDownloading != null && splittedMessage.getAnimeName().contains(currentlyDownloading.getAnimeName())) {
+                    logger.debug("This anime {}, is currently being downloaded", splittedMessage.getAnimeName());
+                    return;
+                }
 
                 //TODO CHANGE TO TEST IF CURRENT ANIME ISN'T THE SAME
                 /*for (AlreadyDownloadingAnime ADA : alreadyDownloadingAnime) {
@@ -149,14 +152,12 @@ public class IRCBotListener extends ListenerAdapter {
             }
 
             if (message != null) {
-                logger.debug("Spliced message: bot[{}] anime[{}]", splittedMessage.getDownloadMessage().getBotName(), splittedMessage.getDownloadMessage().getMessage());
-                //TODO CHANGE TO TEST IF CURRENT ANIME ISN'T THE SAME
-                /*for (AlreadyDownloadingAnime ADA : alreadyDownloadingAnime) {
-                    if (ADA.getMessage().contains(message)) {
-                        logger.debug("This anime {}, is already being downloaded", splittedMessage.getAnimeName());
-                        return;
-                    }
-                }*/
+                // TEST IF ANIME ISN'T CURRENTLY BEING DOWNLOADED
+                if (currentlyDownloading != null && splittedMessage.getAnimeName().contains(currentlyDownloading.getAnimeName())) {
+                    //TODO IF EXISTING FILE < ACTUAL FILE SIZE
+                    logger.debug("This anime {}, is currently being downloaded", splittedMessage.getAnimeName());
+                    return;
+                }
 
                 //TODO ADD TEST IF ANIME ISN'T IN QUEUE
 
@@ -194,6 +195,10 @@ public class IRCBotListener extends ListenerAdapter {
                     botCommands.sendMessage(
                             splittedMessage.getDownloadMessage().getBotName(),
                             splittedMessage.getDownloadMessage().getMessage());
+                    currentlyDownloading = new DownloadMessage(
+                            splittedMessage.getDownloadMessage().getBotName(),
+                            splittedMessage.getDownloadMessage().getMessage(),
+                            splittedMessage.getAnimeName());
                 }
                 for (DownloadMessage downloadMessage : downloadQueue)
                     logger.info(downloadMessage.getMessage());
@@ -262,6 +267,8 @@ public class IRCBotListener extends ListenerAdapter {
                 workPlace.send("setProgress", new WCMProgress(progress));
             }
             if (fileTransfer.getFileTransferStatus().isSuccessful()) {
+                logger.debug("Clearing currently downloading variable");
+                currentlyDownloading = null;
                 workPlace.increaseAnimeDownload(animeName);
                 logger.debug("Increasing anime download successfully");
                 if (!downloadQueue.isEmpty()) {
