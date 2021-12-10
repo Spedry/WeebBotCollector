@@ -6,6 +6,7 @@ import lombok.NonNull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sk.spedry.weebbotcollector.ircbot.WBCService;
+import sk.spedry.weebbotcollector.properties.Configuration;
 import sk.spedry.weebbotcollector.util.WCMAnime;
 import sk.spedry.weebbotcollector.util.WCMProgress;
 import sk.spedry.weebbotcollector.util.WCMSetup;
@@ -23,6 +24,7 @@ public class WBCWorkPlace extends WBCMessageSender {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final WBCService service;
+    private final Configuration conf;
 
     private final String userDir = System.getProperty("user.dir");
     private final String propertiesFolder = userDir + "/properties/";
@@ -31,7 +33,8 @@ public class WBCWorkPlace extends WBCMessageSender {
     private final String animeListFile = jsonListFolder + "animeList.json";
 
     public WBCWorkPlace() {
-        service = new WBCService();
+        this.service = new WBCService();
+        this.conf = new Configuration();
         startIRCBot(new WCMessage("startIRCBot"));
         logger.debug("Testing if folders exists");
         createFolder(propertiesFolder);
@@ -126,10 +129,6 @@ public class WBCWorkPlace extends WBCMessageSender {
         return null;
     }
 
-    public WCMSetup getSetup() {
-        return new Gson().fromJson(getJsonObject(propertiesFolder + "setup.json"), WCMSetup.class);
-    }
-
     /**
      * Methods that communicate with client
      * all ends with sendMessage();
@@ -201,24 +200,16 @@ public class WBCWorkPlace extends WBCMessageSender {
     }
 
     public void setSetup(WCMessage wcMessage) {
-        try {
-            FileWriter fileWriter = new FileWriter(propertiesFolder + "setup.json");
-            WCMSetup setup = new Gson().fromJson(wcMessage.getMessageBody(), WCMSetup.class);
-            new Gson().toJson(setup, fileWriter);
-            fileWriter.close();
-            send(wcMessage.getMessageId(), getSetup());
-        } catch (IOException e) {
-            logger.error("Couldn't find the file in given path", e);
-        }
+        conf.setBotSetting(new Gson().fromJson(wcMessage.getMessageBody(), WCMSetup.class));
     }
 
     public void getSetup(WCMessage wcMessage) {
-        send(wcMessage.getMessageId(), getSetup());
+        send(wcMessage.getMessageId(), conf.getBotSetting());
     }
 
     public void startIRCBot(WCMessage wcMessage) {
         logger.info("Starting bot");
-        WCMSetup setup = getSetup();
+        WCMSetup setup = conf.getBotSetting();
         if (setup.getUserName() != null &&
                 !setup.getUserName().isEmpty() &&
                 setup.getDownloadFolder() != null &&
