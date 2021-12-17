@@ -24,6 +24,7 @@ public class WBCWorkPlace extends WBCMessageSender {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final WBCService service;
+    @Getter
     private final Configuration conf;
 
     private final String userDir = System.getProperty("user.dir");
@@ -201,6 +202,10 @@ public class WBCWorkPlace extends WBCMessageSender {
 
     public void setSetup(WCMessage wcMessage) {
         conf.setBotSetting(new Gson().fromJson(wcMessage.getMessageBody(), WCMSetup.class));
+    }
+
+    public WCMSetup getSetup() {
+        return conf.getBotSetting();
     }
 
     public void getSetup(WCMessage wcMessage) {
