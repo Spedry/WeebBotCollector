@@ -157,6 +157,101 @@ public class IRCBotListener extends ListenerAdapter {
         }
     }
 
+    private void downloadNewRelease(String receivedMessage) {
+        // Split message
+        SplitNewRelease newRelease = null;
+        try {
+            newRelease = new SplitNewRelease(receivedMessage);
+        } catch (Exception e) {
+            logger.error("Couldn't parse message");
+        }
+        if (newRelease == null)
+            return;
+
+        // get download message from
+        logger.trace("Going through all anime entries in jsonListFile: animeList.json");
+        try {
+            boolean match = false;
+            for (WCMAnime anime : workPlace.getAnimeList().getAnimeList()) {
+                if (newRelease.getAnimeName().contains(anime.getTypeOfQuality().getName().toLowerCase())) {
+                    if (newRelease.getAnimeName().contains(anime.getAnimeName().toLowerCase())) {
+                        // TODO MATCH WITH BOT IF CHOSEN
+                        // check if user specified bot from who our bot should be downloading
+                        match = true;
+                    }
+                }
+            }
+            if (!match)
+                throw new Exception("Anime didn't match");
+        } catch (Exception e) {
+            logger.error(e);
+        }
+
+        // Tests
+        // 1. TEST IF ANIME ISN'T CURRENTLY BEING DOWNLOADED
+        if (currentlyDownloading != null && newRelease.getAnimeName().contains(currentlyDownloading.getAnimeName())) {
+            //TODO IF EXISTING FILE < ACTUAL FILE SIZE
+            logger.debug("This anime {}, is currently being downloaded", newRelease.getAnimeName());
+            return;
+        }
+
+        // 2. TEST IF ANIME ISN'T ALREADY IN QUEUE
+        for (DownloadMessage downloadMsg : downloadQueue) {
+            if (newRelease.getAnimeName().contains(downloadMsg.getAnimeName())) {
+                logger.debug("This anime {}, is already queue", newRelease.getAnimeName());
+                return;
+            }
+        }
+
+        // 3.1 SET ANIME FOLDER NAME
+        newRelease.setAnimeFolderName(workPlace.getAnimeList());
+
+        // 3.2 TEST ANIME NAME
+        if (newRelease.getAnimeFolderName() == null) {
+            logger.error("Anime folder name was empty!");
+            return;
+        }
+
+        // 3.3 TEST IF ANIME ISN'T ALREADY DOWNLOADED
+        File folder = new File(downloadFolder + "/" + newRelease.getAnimeFolderName());
+        File[] listOfFiles = folder.listFiles();
+        assert listOfFiles != null;
+        if (folder.exists()) {
+            for (File file : listOfFiles) {
+                if (receivedMessage.contains(file.getName().toLowerCase())) {
+                    logger.debug("This anime {}, is already downloaded", newRelease.getAnimeName());
+                    return;
+                }
+            }
+        }
+
+        // 4. TEST IF IS SOMETHING IS BEING DOWNLOADED
+        if (fileTransfer != null && fileTransfer.getFileTransferStatus().isAlive()) {
+            // 4.1 Add anime into download queue
+            downloadQueue.add(new DownloadMessage(
+                    newRelease.getDownloadMessage().getBotName(),
+                    newRelease.getDownloadMessage().getMessage(),
+                    newRelease.getAnimeName()));
+        }
+        else {
+            // 4.2 Send download message
+            botCommands.sendMessage(
+                    newRelease.getDownloadMessage().getBotName(),
+                    newRelease.getDownloadMessage().getMessage());
+            currentlyDownloading = new DownloadMessage(
+                    newRelease.getDownloadMessage().getBotName(),
+                    newRelease.getDownloadMessage().getMessage(),
+                    newRelease.getAnimeName());
+        }
+    }
+
+    private void downloadAlreadyReleased(String receivedMessage) {
+        // Split message
+        SplitAlreadyReleased alreadyReleased = new SplitAlreadyReleased(receivedMessage);
+
+
+    }
+
     //public void onPrivateMessage(PrivateMessageEvent event) {
         // TODO OPTION TO DOWNLOAD ANIME BY SENDING PRIVATE MESSAGE TO BOT
     //}
@@ -173,10 +268,40 @@ public class IRCBotListener extends ListenerAdapter {
         }
 
         final String receivedMessage = event.getMessage().toLowerCase();
+        final String userName = event.getUser().getNick();
         String message = null;
 
         logger.debug("Received message: " + receivedMessage);
 
+        // MATCH SEARCH BOT
+        if (userName.equals(workPlace.getConf().getProperty("searchBot"))) {
+            // download already released anime
+            downloadAlreadyReleased(receivedMessage);
+        }
+        // else if () {}
+
+        // MATCH RELEASE BOTS
+        for (String releaseBotName : workPlace.getConf().getReleaseBotsList()) {
+            if (userName.equals(releaseBotName))
+                // Download released anime
+                downloadNewRelease(receivedMessage);
+        }
+
+        // MATCH RELEASE IPv6 BOTS
+        if (!disIpv6 && !Objects.requireNonNull(event.getUser()).getNick().toLowerCase().contains("ipv6")) {
+            for (String releaseBotNameIPv6 : workPlace.getConf().getReleaseBotsList()) {
+                if (userName.equals(releaseBotNameIPv6))
+                    // Download released anime
+                    downloadNewRelease(receivedMessage);
+            }
+        }
+        else {
+            logger.debug("IPV6 is disabled");
+        }
+
+        logger.warn("Unknown user: {}", userName);
+
+        // TODO SPLICE INTO SMALLER PARTS
         if (receivedMessage.contains("/msg")) {
             // TODO CHANGE IT
             SplitNewRelease splitNewRelease = null;
