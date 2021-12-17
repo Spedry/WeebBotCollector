@@ -27,7 +27,7 @@ public class IRCBot extends ListenerAdapter implements Runnable {
     private final IRCBotCommands botCommands;
     //TODO WILL BE USED LATER ???
     // private IRCBotListener botListener;
-    private WBCWorkPlace workPlace;
+    private final WBCWorkPlace workPlace;
     @Getter
     private final String threadName;
     @Getter
@@ -44,7 +44,6 @@ public class IRCBot extends ListenerAdapter implements Runnable {
     private String downloadFolder;
 
     private InetAddress inetAddress;
-    private List<Integer> portList = new ArrayList<Integer>();
     public IRCBot(WBCWorkPlace workPlace) {
         /*try {
             inetAddress = InetAddress.getByName("");
@@ -122,14 +121,5 @@ public class IRCBot extends ListenerAdapter implements Runnable {
         } catch (IrcException e) {
             logger.error("IrcException", e);
         }
-    }
-
-    private void fillPortList() {
-        portList.add(40000);
-        portList.add(40001);
-        portList.add(40002);
-        portList.add(40003);
-        portList.add(40004);
-        portList.add(40005);
     }
 }
