@@ -7,6 +7,8 @@ import sk.spedry.weebbotcollector.util.WCMSetup;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 public class Configuration {
@@ -32,7 +34,7 @@ public class Configuration {
         properties.setProperty(key, value);
     }
 
-
+    /**BOT SETTING**/
     public void setBotSetting(WCMSetup setup) {
         setProperty("userName", setup.getUserName());
         setProperty("downloadFolder", setup.getDownloadFolder());
@@ -49,4 +51,8 @@ public class Configuration {
         );
     }
 
+    /**RELEASE BOTS LIST**/
+    public List<String> getReleaseBotsList() {
+        return Arrays.asList(getProperty("releaseBots").split(","));
+    }
 }
