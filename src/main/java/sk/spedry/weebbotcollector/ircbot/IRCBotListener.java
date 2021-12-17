@@ -44,7 +44,7 @@ public class IRCBotListener extends ListenerAdapter {
     // TODO ADD OPTIONS TO SET THIS VALUE FROM APP/INIT THIS VALUE WHEN BOT IS CREATED
     // one GB = 1 000 000 000 bytes for info DECIMAL = GB/1000
     // one GB = 1 073 741 824 bytes for info BINARY = GB/1024
-    private long maxFileSize = 2000000000; //2gb default
+    private long maxFileSize = 3000000000L; //2gb default
     private boolean disIpv6 = true;
 
     public IRCBotListener(String downloadFolder, WBCWorkPlace workPlace, IRCBotCommands botCommands) {
