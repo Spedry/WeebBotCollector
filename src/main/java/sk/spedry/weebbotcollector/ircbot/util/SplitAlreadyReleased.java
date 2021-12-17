@@ -15,8 +15,7 @@ public class SplitAlreadyReleased {
     public SplitAlreadyReleased(String message) {
         this.message = message;
         this.size = message.substring(message.indexOf("["), message.indexOf("]")+1);
-        this.downloadMessage = new DownloadMessage(message.substring(message.lastIndexOf("/msg")));
-        this.animeName = message.replace(size, "").replace(downloadMessage.getWholeMessage(), "").trim();
+        this.animeName = message.replace(size, "").replace(message.substring(message.lastIndexOf("/msg")), "").trim();
+        this.downloadMessage = new DownloadMessage(message.substring(message.lastIndexOf("/msg")), animeName);
     }
-
 }
