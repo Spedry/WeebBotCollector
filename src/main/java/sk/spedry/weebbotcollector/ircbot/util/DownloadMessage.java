@@ -19,6 +19,14 @@ public class DownloadMessage {
         this.message = spliced[2] + " " + spliced[3] + " " + spliced[4];
     }
 
+    public DownloadMessage(String message, String animeName) {
+        this.wholeMessage = message;
+        String[] spliced = message.split(" ");
+        this.botName = spliced[1];
+        this.message = spliced[2] + " " + spliced[3] + " " + spliced[4];
+        this.animeName = animeName;
+    }
+
     public DownloadMessage(String botName, String message, String animeName) {
         this.wholeMessage = "/msg " + botName + " " + message;
         this.botName = botName;
