@@ -8,6 +8,7 @@ import org.pircbotx.hooks.ListenerAdapter;
 import org.pircbotx.hooks.events.IncomingFileTransferEvent;
 import org.pircbotx.hooks.events.MessageEvent;
 import org.pircbotx.hooks.events.PrivateMessageEvent;
+
 import sk.spedry.weebbotcollector.ircbot.util.DownloadMessage;
 import sk.spedry.weebbotcollector.ircbot.util.SplitAlreadyReleased;
 import sk.spedry.weebbotcollector.ircbot.util.SplitNewRelease;
@@ -36,6 +37,7 @@ public class IRCBotListener extends ListenerAdapter {
     private DownloadMessage currentlyDownloading;
     private ArrayList<DownloadMessage> downloadQueue = new ArrayList<DownloadMessage>();
     private ReceiveFileTransfer fileTransfer;
+
 
     // BOT SETTINGS
     @Setter
@@ -72,18 +74,18 @@ public class IRCBotListener extends ListenerAdapter {
 
         if (receivedMessage.contains("/msg")) {
             // TODO CHANGE IT
-            SplittedMessage splittedMessage = null;
+            SplitNewRelease splitNewRelease = null;
             try {
-                splittedMessage = new SplittedMessage(receivedMessage);
+                splitNewRelease = new SplitNewRelease(receivedMessage);
             } catch (Exception e) {
                 logger.error("Couldn't parse message");
             }
-            if (splittedMessage == null)
+            if (splitNewRelease == null)
                 return;
             logger.trace("Going through all anime entries in jsonListFile: animeList.json");
             for (WCMAnime anime : workPlace.getAnimeList().getAnimeList()) {
-                if (splittedMessage.getAnimeName().contains(anime.getTypeOfQuality().getName().toLowerCase())) {
-                    if (splittedMessage.getAnimeName().contains(anime.getAnimeName().toLowerCase())) {
+                if (splitNewRelease.getAnimeName().contains(anime.getTypeOfQuality().getName().toLowerCase())) {
+                    if (splitNewRelease.getAnimeName().contains(anime.getAnimeName().toLowerCase())) {
                         // TODO MATCH WITH BOT IF CHOSEN
                         // check if user specified bot from who our bot should be downloading
                         message = receivedMessage.substring(receivedMessage.lastIndexOf("/msg"));
@@ -94,15 +96,15 @@ public class IRCBotListener extends ListenerAdapter {
 
             if (message != null) {
                 // TEST IF ANIME ISN'T CURRENTLY BEING DOWNLOADED
-                if (currentlyDownloading != null && splittedMessage.getAnimeName().contains(currentlyDownloading.getAnimeName())) {
-                    logger.debug("This anime {}, is currently being downloaded", splittedMessage.getAnimeName());
+                if (currentlyDownloading != null && splitNewRelease.getAnimeName().contains(currentlyDownloading.getAnimeName())) {
+                    logger.debug("This anime {}, is currently being downloaded", splitNewRelease.getAnimeName());
                     return;
                 }
 
                 // TEST IF ANIME ISN'T ALREADY IN QUEUE
                 for (DownloadMessage downloadMessage : downloadQueue) {
-                    if (splittedMessage.getAnimeName().contains(downloadMessage.getAnimeName())) {
-                        logger.debug("This anime {}, is already queue", splittedMessage.getAnimeName());
+                    if (splitNewRelease.getAnimeName().contains(downloadMessage.getAnimeName())) {
+                        logger.debug("This anime {}, is already queue", splitNewRelease.getAnimeName());
                         return;
                     }
                 }
@@ -125,7 +127,7 @@ public class IRCBotListener extends ListenerAdapter {
                 if (folder.exists()) {
                     for (File file : listOfFiles) {
                         if (receivedMessage.contains(file.getName().toLowerCase())) {
-                            logger.debug("This anime {}, is already downloaded", splittedMessage.getAnimeName());
+                            logger.debug("This anime {}, is already downloaded", splitNewRelease.getAnimeName());
                             return;
                         }
                     }
@@ -135,19 +137,19 @@ public class IRCBotListener extends ListenerAdapter {
                 if (fileTransfer != null && fileTransfer.getFileTransferStatus().isAlive()) {
                     // ADD ANIME INTO DOWNLOAD QUEUE
                     downloadQueue.add(new DownloadMessage(
-                            splittedMessage.getDownloadMessage().getBotName(),
-                            splittedMessage.getDownloadMessage().getMessage(),
-                            splittedMessage.getAnimeName()));
+                            splitNewRelease.getDownloadMessage().getBotName(),
+                            splitNewRelease.getDownloadMessage().getMessage(),
+                            splitNewRelease.getAnimeName()));
                 }
                 else {
                     // SEND DOWNLOAD MESSAGE
                     botCommands.sendMessage(
-                            splittedMessage.getDownloadMessage().getBotName(),
-                            splittedMessage.getDownloadMessage().getMessage());
+                            splitNewRelease.getDownloadMessage().getBotName(),
+                            splitNewRelease.getDownloadMessage().getMessage());
                     currentlyDownloading = new DownloadMessage(
-                            splittedMessage.getDownloadMessage().getBotName(),
-                            splittedMessage.getDownloadMessage().getMessage(),
-                            splittedMessage.getAnimeName());
+                            splitNewRelease.getDownloadMessage().getBotName(),
+                            splitNewRelease.getDownloadMessage().getMessage(),
+                            splitNewRelease.getAnimeName());
                 }
                 for (DownloadMessage downloadMessage : downloadQueue)
                     logger.debug("Anime in download queue: {}", downloadMessage.getAnimeName());
@@ -177,18 +179,18 @@ public class IRCBotListener extends ListenerAdapter {
 
         if (receivedMessage.contains("/msg")) {
             // TODO CHANGE IT
-            SplittedMessage splittedMessage = null;
+            SplitNewRelease splitNewRelease = null;
             try {
-                splittedMessage = new SplittedMessage(receivedMessage);
+                splitNewRelease = new SplitNewRelease(receivedMessage);
             } catch (Exception e) {
                 logger.error("Couldn't parse message");
             }
-            if (splittedMessage == null)
+            if (splitNewRelease == null)
                 return;
             logger.trace("Going through all anime entries in jsonListFile: animeList.json");
             for (WCMAnime anime : workPlace.getAnimeList().getAnimeList()) {
-                if (splittedMessage.getAnimeName().contains(anime.getTypeOfQuality().getName().toLowerCase())) {
-                    if (splittedMessage.getAnimeName().contains(anime.getAnimeName().toLowerCase())) {
+                if (splitNewRelease.getAnimeName().contains(anime.getTypeOfQuality().getName().toLowerCase())) {
+                    if (splitNewRelease.getAnimeName().contains(anime.getAnimeName().toLowerCase())) {
                         // TODO MATCH WITH BOT IF CHOSEN
                         // check if user specified bot from who our bot should be downloading
                         message = receivedMessage.substring(receivedMessage.lastIndexOf("/msg"));
@@ -199,16 +201,16 @@ public class IRCBotListener extends ListenerAdapter {
 
             if (message != null) {
                 // TEST IF ANIME ISN'T CURRENTLY BEING DOWNLOADED
-                if (currentlyDownloading != null && splittedMessage.getAnimeName().contains(currentlyDownloading.getAnimeName())) {
+                if (currentlyDownloading != null && splitNewRelease.getAnimeName().contains(currentlyDownloading.getAnimeName())) {
                     //TODO IF EXISTING FILE < ACTUAL FILE SIZE
-                    logger.debug("This anime {}, is currently being downloaded", splittedMessage.getAnimeName());
+                    logger.debug("This anime {}, is currently being downloaded", splitNewRelease.getAnimeName());
                     return;
                 }
 
                 // TEST IF ANIME ISN'T ALREADY IN QUEUE
                 for (DownloadMessage downloadMessage : downloadQueue) {
-                    if (splittedMessage.getAnimeName().contains(downloadMessage.getAnimeName())) {
-                        logger.debug("This anime {}, is already queue", splittedMessage.getAnimeName());
+                    if (splitNewRelease.getAnimeName().contains(downloadMessage.getAnimeName())) {
+                        logger.debug("This anime {}, is already queue", splitNewRelease.getAnimeName());
                         return;
                     }
                 }
@@ -231,7 +233,7 @@ public class IRCBotListener extends ListenerAdapter {
                 if (folder.exists()) {
                     for (File file : listOfFiles) {
                         if (receivedMessage.contains(file.getName().toLowerCase())) {
-                            logger.debug("This anime {}, is already downloaded", splittedMessage.getAnimeName());
+                            logger.debug("This anime {}, is already downloaded", splitNewRelease.getAnimeName());
                             return;
                         }
                     }
@@ -241,19 +243,19 @@ public class IRCBotListener extends ListenerAdapter {
                 if (fileTransfer != null && fileTransfer.getFileTransferStatus().isAlive()) {
                     // ADD ANIME INTO DOWNLOAD QUEUE
                     downloadQueue.add(new DownloadMessage(
-                            splittedMessage.getDownloadMessage().getBotName(),
-                            splittedMessage.getDownloadMessage().getMessage(),
-                            splittedMessage.getAnimeName()));
+                            splitNewRelease.getDownloadMessage().getBotName(),
+                            splitNewRelease.getDownloadMessage().getMessage(),
+                            splitNewRelease.getAnimeName()));
                 }
                 else {
                     // SEND DOWNLOAD MESSAGE
                     botCommands.sendMessage(
-                            splittedMessage.getDownloadMessage().getBotName(),
-                            splittedMessage.getDownloadMessage().getMessage());
+                            splitNewRelease.getDownloadMessage().getBotName(),
+                            splitNewRelease.getDownloadMessage().getMessage());
                     currentlyDownloading = new DownloadMessage(
-                            splittedMessage.getDownloadMessage().getBotName(),
-                            splittedMessage.getDownloadMessage().getMessage(),
-                            splittedMessage.getAnimeName());
+                            splitNewRelease.getDownloadMessage().getBotName(),
+                            splitNewRelease.getDownloadMessage().getMessage(),
+                            splitNewRelease.getAnimeName());
                 }
                 // TODO do some more tests
                 for (DownloadMessage downloadMessage : downloadQueue)
