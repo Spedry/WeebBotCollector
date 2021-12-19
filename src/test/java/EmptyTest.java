@@ -1,17 +1,23 @@
-import com.google.gson.Gson;
-import sk.spedry.weebbotcollector.ircbot.IRCBot;
-import sk.spedry.weebbotcollector.ircbot.util.SplitAlreadyReleased;
-import sk.spedry.weebbotcollector.properties.Configuration;
-import sk.spedry.weebbotcollector.work.WBCWorkPlace;
+import sk.spedry.weebbotcollector.ircbot.IRCBotCommands;
+import sk.spedry.weebbotcollector.ircbot.util.SplittedMessage;
+
+import java.util.ArrayList;
 
 public class EmptyTest {
 
+    public static void main(String[] args) {
+        ArrayList<String> arrayList = new ArrayList<String>();
+        arrayList.add("pes");
+        arrayList.add("macka");
+        arrayList.add("zajac");
+        arrayList.add("kon");
 
+        for (String animal : arrayList)
+            System.out.println("Animal: " + animal);
 
-    public static void main(String[] args) throws InterruptedException {
-        Configuration configuration = new Configuration();
+        System.out.println(arrayList.remove(0));
 
-        for (String s : configuration.getAllWhoHasAccess())
-            System.out.println(s);
+        for (String animal : arrayList)
+            System.out.println("Animal: " + animal);
     }
 }
