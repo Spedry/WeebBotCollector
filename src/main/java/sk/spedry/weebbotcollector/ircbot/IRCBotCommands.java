@@ -23,7 +23,7 @@ public class IRCBotCommands {
     }
 
     public void sendMessage(DownloadMessage message) {
-        logger.info("Sending message: " + message.getMessage() + " to: " + message.getBotName());
+        logger.info("Sending message: {} to: {}, to download: {}", message.getMessage(), message.getBotName(), message.getAnimeName());
         bot.sendIRC().message(message.getBotName(), message.getMessage());
     }
 
