@@ -39,6 +39,7 @@ public class IRCBotListener extends ListenerAdapter {
     private final IRCBotCommands botCommands;
     private DownloadMessage currentlyDownloading;
     private ArrayList<DownloadMessage> downloadQueue = new ArrayList<DownloadMessage>();
+    private ArrayList<DownloadMessage> alreadyReleasedQueue = new ArrayList<DownloadMessage>();
     private ReceiveFileTransfer fileTransfer;
 
 
@@ -68,7 +69,6 @@ public class IRCBotListener extends ListenerAdapter {
         if (event.getUser().getNick().equals(workPlace.getConf().getProperty("searchBot")))
             processMessage(event.getUser(), event.getMessage());
     }
-
 
     @Override
     public void onMessage(MessageEvent event) {
@@ -429,6 +429,18 @@ public class IRCBotListener extends ListenerAdapter {
             return;
         }
 
+        for (DownloadMessage downloadMessage : alreadyReleasedQueue) {
+            if (downloadMessage.getAnimeName().equals(alreadyReleased.getDownloadMessage().getAnimeName()))
+                return;
+        }
+
+        alreadyReleasedQueue.add(alreadyReleased.getDownloadMessage());
+
+
+        for (DownloadMessage downloadMessage : alreadyReleasedQueue) {
+            logger.info("in list: {}", downloadMessage.getAnimeName());
+        }
+        /*
         // 1. TEST IF IS SOMETHING IS BEING DOWNLOADED
         if (fileTransfer != null && fileTransfer.getFileTransferStatus().isAlive()) {
             // 1.1 TEST IF THIS ALREADY RELEASED ANIME ISN'T BEING DOWNLOADED
@@ -460,6 +472,6 @@ public class IRCBotListener extends ListenerAdapter {
                     workPlace.getConf().getProperty("searchBot"),
                     "STOP"
             );
-        }
+        }*/
     }
 }
