@@ -214,7 +214,7 @@ public class WBCWorkPlace extends WBCMessageSender {
                                     number = "0" + i;
                                 else
                                     number = String.valueOf(i);
-                                botCommands.searchAnime(conf.getProperty("searchBot"), wcmAnime.getAnimeName(), new String[]{number, wcmAnime.getTypeOfQuality().getName()});
+                                botCommands.searchAnime(conf.getProperty("searchBot"), conf.getProperty("downloadFrom"), wcmAnime.getAnimeName(), number, wcmAnime.getTypeOfQuality().getName());
                                 java.util.concurrent.TimeUnit.SECONDS.sleep(Integer.parseInt(conf.getProperty("waitBeforeSearch")));
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
