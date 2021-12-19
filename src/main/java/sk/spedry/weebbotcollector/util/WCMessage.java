@@ -4,9 +4,11 @@ import lombok.Getter;
 
 public class WCMessage {
     @Getter
-    private String messageId;
+    private final String messageId;
     @Getter
-    private String messageBody;
+    private final String messageBody;
+    @Getter
+    private String additionalData;
 
     public WCMessage(String messageId, String messageBody) {
         this.messageId = messageId;
