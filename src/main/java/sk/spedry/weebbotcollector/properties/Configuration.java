@@ -7,6 +7,7 @@ import sk.spedry.weebbotcollector.util.WCMSetup;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -54,5 +55,17 @@ public class Configuration {
     /**RELEASE BOTS LIST**/
     public List<String> getReleaseBotsList() {
         return Arrays.asList(getProperty("releaseBots").split(","));
+    }
+
+    /**GET ALL WHO HAS ACCESS**/
+    public List<String> getAllWhoHasAccess() {
+        String[] allUsersWhoHasAccess = {"searchBot", "releaseBots", "releaseBotsIPv6", "releaseBotsBatch"};
+        List<String> list = new ArrayList<String>();
+
+        for (String user : allUsersWhoHasAccess) {
+            list.addAll(Arrays.asList(getProperty(user).split(",")));
+        }
+
+        return list;
     }
 }
