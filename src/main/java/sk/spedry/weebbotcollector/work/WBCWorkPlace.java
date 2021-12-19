@@ -3,8 +3,10 @@ package sk.spedry.weebbotcollector.work;
 import com.google.gson.*;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import sk.spedry.weebbotcollector.ircbot.IRCBotCommands;
 import sk.spedry.weebbotcollector.ircbot.WBCService;
 import sk.spedry.weebbotcollector.properties.Configuration;
 import sk.spedry.weebbotcollector.util.WCMAnime;
@@ -26,6 +28,9 @@ public class WBCWorkPlace extends WBCMessageSender {
     private final WBCService service;
     @Getter
     private final Configuration conf;
+    @Setter
+    private IRCBotCommands botCommands;
+
 
     private final String userDir = System.getProperty("user.dir");
     private final String propertiesFolder = userDir + "/properties/";
@@ -191,6 +196,28 @@ public class WBCWorkPlace extends WBCMessageSender {
             fileWriter.close();
             logger.debug("Saving file: success");
             send(wcMessage.getMessageId(), animeList);
+
+            if(!wcMessage.getAdditionalData().isEmpty()) {
+                boolean download = new Gson().fromJson(wcMessage.getAdditionalData(), boolean.class);
+                if (download) {
+                    int numberOfEpisodes = wcmAnime.getNumberOfEpisodes();
+                    if (numberOfEpisodes == 0) {
+                        logger.warn("TODO");
+                        //botCommands.searchAnime(conf.getProperty("searchBot"), wcmAnime.getAnimeName(), [ ,wcmAnime.getTypeOfQuality()]);
+                    }
+                    else {
+                        for (int i = 1; i < numberOfEpisodes + 1; i++) {
+                            try {
+                                //logger.debug(conf.getProperty("searchBot") + " " + wcmAnime.getAnimeName() + " " +  String.valueOf(i) + " " +  wcmAnime.getTypeOfQuality().getName());
+                                botCommands.searchAnime(conf.getProperty("searchBot"), wcmAnime.getAnimeName(), new String[]{String.valueOf(i), wcmAnime.getTypeOfQuality().getName()});
+                                java.util.concurrent.TimeUnit.SECONDS.sleep(Integer.parseInt(conf.getProperty("waitBeforeSearch")));
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                }
+            }
         } catch (IOException e) {
             logger.error("File reader: ", e);
         }
