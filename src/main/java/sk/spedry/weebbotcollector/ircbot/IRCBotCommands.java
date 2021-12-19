@@ -24,4 +24,12 @@ public class IRCBotCommands {
         logger.info("Sending message: " + message.getMessage() + " to: " + message.getBotName());
         bot.sendIRC().message(message.getBotName(), message.getMessage());
     }
+
+    public void searchAnime(String target, String animeName, String[] lookFor) {
+        StringBuilder searchFor = new StringBuilder("!s " + animeName);
+        for (String lookingFor : lookFor) {
+            searchFor.append(" ").append(lookingFor);
+        }
+        sendMessage(target, searchFor.toString());
+    }
 }
