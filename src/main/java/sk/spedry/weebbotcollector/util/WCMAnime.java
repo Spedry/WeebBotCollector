@@ -14,7 +14,7 @@ public class WCMAnime {
     @Getter
     private String botName;
     @Getter
-    private String numberOfEpisodes;
+    private int numberOfEpisodes;
     @Getter
     private int numberOfDownloadedEpisodes;
 
