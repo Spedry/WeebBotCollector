@@ -1,6 +1,7 @@
 package sk.spedry.weebbotcollector.ircbot;
 
 import lombok.Setter;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pircbotx.User;
@@ -33,15 +34,16 @@ public class IRCBotListener extends ListenerAdapter {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Setter
+    // TODO CHANGE TO CONFIG
     private String downloadFolder;
     private final WBCWorkPlace workPlace;
     private final IRCBotWorkPlace botWorkPlace;
     private final IRCBotCommands botCommands;
     private DownloadMessage currentlyDownloading;
-    private ArrayList<DownloadMessage> downloadQueue = new ArrayList<DownloadMessage>();
-    private ArrayList<DownloadMessage> alreadyReleasedQueue = new ArrayList<DownloadMessage>();
+    private final ArrayList<DownloadMessage> downloadQueue = new ArrayList<DownloadMessage>();
+    private final ArrayList<DownloadMessage> alreadyReleasedQueue = new ArrayList<DownloadMessage>();
+    public static Thread downloadAllInAlreadyReleasedQueue;
     private ReceiveFileTransfer fileTransfer;
-
 
     // BOT SETTINGS
     @Setter
@@ -56,6 +58,22 @@ public class IRCBotListener extends ListenerAdapter {
         this.workPlace = workPlace;
         this.botCommands = botCommands;
         this.botWorkPlace = new IRCBotWorkPlace();
+        downloadAllInAlreadyReleasedQueue = new Thread(() -> {
+            try {
+                while (true) {
+                    synchronized (IRCBotListener.class) {
+                        IRCBotListener.class.wait();
+                    }
+                    botCommands.sendMessage(alreadyReleasedQueue.remove(0));
+                    downloadQueue.addAll(alreadyReleasedQueue);
+                    alreadyReleasedQueue.clear();
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+        downloadAllInAlreadyReleasedQueue.setDaemon(true);
+        downloadAllInAlreadyReleasedQueue.start();
     }
 
     /**************************BOT EVENTS**************************/
@@ -435,11 +453,6 @@ public class IRCBotListener extends ListenerAdapter {
         }
 
         alreadyReleasedQueue.add(alreadyReleased.getDownloadMessage());
-
-
-        for (DownloadMessage downloadMessage : alreadyReleasedQueue) {
-            logger.info("in list: {}", downloadMessage.getAnimeName());
-        }
         /*
         // 1. TEST IF IS SOMETHING IS BEING DOWNLOADED
         if (fileTransfer != null && fileTransfer.getFileTransferStatus().isAlive()) {
