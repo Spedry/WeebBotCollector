@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 public class IRCBot extends ListenerAdapter implements Runnable {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
-
+    @Getter
     private final PircBotX bot;
     private final IRCBotCommands botCommands;
     //TODO WILL BE USED LATER ???
@@ -61,6 +61,7 @@ public class IRCBot extends ListenerAdapter implements Runnable {
         this.workPlace = workPlace;
         bot = new PircBotX(configureBot());
         botCommands = new IRCBotCommands(bot);
+        workPlace.setBotCommands(botCommands);
         addListener();
     }
 
