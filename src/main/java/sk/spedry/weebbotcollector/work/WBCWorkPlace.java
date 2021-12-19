@@ -209,7 +209,12 @@ public class WBCWorkPlace extends WBCMessageSender {
                         for (int i = 1; i < numberOfEpisodes + 1; i++) {
                             try {
                                 //logger.debug(conf.getProperty("searchBot") + " " + wcmAnime.getAnimeName() + " " +  String.valueOf(i) + " " +  wcmAnime.getTypeOfQuality().getName());
-                                botCommands.searchAnime(conf.getProperty("searchBot"), wcmAnime.getAnimeName(), new String[]{String.valueOf(i), wcmAnime.getTypeOfQuality().getName()});
+                                String number;
+                                if (i < 10)
+                                    number = "0" + i;
+                                else
+                                    number = String.valueOf(i);
+                                botCommands.searchAnime(conf.getProperty("searchBot"), wcmAnime.getAnimeName(), new String[]{number, wcmAnime.getTypeOfQuality().getName()});
                                 java.util.concurrent.TimeUnit.SECONDS.sleep(Integer.parseInt(conf.getProperty("waitBeforeSearch")));
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
