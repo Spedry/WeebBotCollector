@@ -7,12 +7,10 @@ import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sk.spedry.weebbotcollector.ircbot.IRCBotCommands;
+import sk.spedry.weebbotcollector.ircbot.IRCBotListener;
 import sk.spedry.weebbotcollector.ircbot.WBCService;
 import sk.spedry.weebbotcollector.properties.Configuration;
-import sk.spedry.weebbotcollector.util.WCMAnime;
-import sk.spedry.weebbotcollector.util.WCMProgress;
-import sk.spedry.weebbotcollector.util.WCMSetup;
-import sk.spedry.weebbotcollector.util.WCMessage;
+import sk.spedry.weebbotcollector.util.*;
 import sk.spedry.weebbotcollector.util.lists.AnimeList;
 
 import java.io.File;
@@ -24,7 +22,7 @@ import java.util.Iterator;
 public class WBCWorkPlace extends WBCMessageSender {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
-
+    // Only to start/stop/reset bot
     private final WBCService service;
     @Getter
     private final Configuration conf;
@@ -197,10 +195,10 @@ public class WBCWorkPlace extends WBCMessageSender {
             logger.debug("Saving file: success");
             send(wcMessage.getMessageId(), animeList);
 
-            if(!wcMessage.getAdditionalData().isEmpty()) {
-                boolean download = new Gson().fromJson(wcMessage.getAdditionalData(), boolean.class);
-                if (download) {
-                    int numberOfEpisodes = wcmAnime.getNumberOfEpisodes();
+            if(wcMessage.getAdditionalData() != null) {
+                WCMDownAlrRel downAlrRel = new Gson().fromJson(wcMessage.getAdditionalData(), WCMDownAlrRel.class);
+                if (downAlrRel.isDownload()) {
+                    int numberOfEpisodes = downAlrRel.getAlreadyReleasedEp();
                     if (numberOfEpisodes == 0) {
                         logger.warn("TODO");
                         //botCommands.searchAnime(conf.getProperty("searchBot"), wcmAnime.getAnimeName(), [ ,wcmAnime.getTypeOfQuality()]);
@@ -219,6 +217,9 @@ public class WBCWorkPlace extends WBCMessageSender {
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
+                        }
+                        synchronized (IRCBotListener.class) {
+                            IRCBotListener.class.notify();
                         }
                     }
                 }
