@@ -5,7 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.pircbotx.PircBotX;
 import sk.spedry.weebbotcollector.ircbot.util.DownloadMessage;
 
-import java.util.List;
+import java.util.Objects;
 
 public class IRCBotCommands {
 
@@ -33,6 +33,10 @@ public class IRCBotCommands {
     }
 
     public void searchAnime(String target, String downloadFrom, String animeName, String numberOfEp, String quality) {
+        if (Objects.equals(downloadFrom, "")) {
+            searchAnime(target, animeName, numberOfEp, quality);
+            return;
+        }
         String searchFor = "!s " + downloadFrom + " " + animeName + " " + numberOfEp + " " + quality;
         sendMessage(target, searchFor);
     }
