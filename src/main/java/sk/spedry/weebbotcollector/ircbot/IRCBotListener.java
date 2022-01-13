@@ -304,6 +304,14 @@ public class IRCBotListener extends ListenerAdapter {
             // TODO SOMETHING WENT WRONG
             else {
                 logger.error("FILE TRANSFER WASN'T SUCCESSFUL");
+                logger.error("Anime that failed is {}", currentlyDownloading.getAnimeName());
+                try {
+                    Thread.sleep(10000);
+                    logger.debug("Repeating downloading of {}", currentlyDownloading.getAnimeName());
+                    botCommands.sendMessage(currentlyDownloading);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         });
         progressThread.setName("FileTransferStatus");
