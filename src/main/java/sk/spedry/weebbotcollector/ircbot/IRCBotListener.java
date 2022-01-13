@@ -324,6 +324,24 @@ public class IRCBotListener extends ListenerAdapter {
         logger.debug("Transfer of {} started, with {} size", animeName, botWorkPlace.bytesToReadable(fileSize));
         //TODO AFTER SOME TIME TEST IF DOWNLOAD STARTED OR NOT
         // IF NOT CLEAR CURRENT DOWNLOAD VARIABLE
+        Thread testIfAnimeDownloadStarted = new Thread(() -> {
+            try {
+                logger.trace("Thread to test download started");
+                Thread.sleep(20000);
+                if (fileTransfer == null || fileTransfer.getFileTransferStatus().isAlive()) {
+                    logger.info("Download of anime {} started", currentlyDownloading.getAnimeName());
+                }
+                else {
+                    logger.error("Download of anime {} didn't start", currentlyDownloading.getAnimeName());
+                    // TODO REPEAT DOWNLOAD??
+                }
+                logger.trace("Thread to test download ended");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+        logger.debug("Starting thread to test if anime download started");
+        testIfAnimeDownloadStarted.start();
         fileTransfer.transfer();
     }
 
