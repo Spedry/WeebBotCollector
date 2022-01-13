@@ -39,9 +39,6 @@ public class IRCBot extends ListenerAdapter implements Runnable {
     @Getter
     @Setter
     private String channelName;
-    @Getter
-    @Setter
-    private String downloadFolder;
 
     private InetAddress inetAddress;
     public IRCBot(WBCWorkPlace workPlace) {
@@ -57,7 +54,6 @@ public class IRCBot extends ListenerAdapter implements Runnable {
         this.userName = setup.getUserName();
         this.serverName = setup.getServerName();
         this.channelName = setup.getChannelName();
-        this.downloadFolder = setup.getDownloadFolder();
         this.workPlace = workPlace;
         bot = new PircBotX(configureBot());
         botCommands = new IRCBotCommands(bot);
@@ -93,7 +89,7 @@ public class IRCBot extends ListenerAdapter implements Runnable {
     }
 
     private void addListener() {
-        bot.getConfiguration().getListenerManager().addListener(new IRCBotListener(downloadFolder, workPlace, botCommands));
+        bot.getConfiguration().getListenerManager().addListener(new IRCBotListener(workPlace, botCommands));
     }
 
     public void closeBot() {
