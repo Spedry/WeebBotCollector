@@ -2,9 +2,8 @@ package sk.spedry.weebbotcollector.ircbot.util;
 
 import lombok.Getter;
 
-public class SplitAlreadyReleased {
-    @Getter
-    private final String message;
+public class SplitAlreadyReleased extends Release {
+
     @Getter
     private final String size;
     @Getter
@@ -13,7 +12,7 @@ public class SplitAlreadyReleased {
     private final DownloadMessage downloadMessage;
 
     public SplitAlreadyReleased(String message) {
-        this.message = message;
+        super(message);
         this.size = message.substring(message.indexOf("["), message.indexOf("]")+1);
         this.animeName = message.replace(size, "").replace(message.substring(message.lastIndexOf("/msg")), "").trim();
         this.downloadMessage = new DownloadMessage(message.substring(message.lastIndexOf("/msg")), animeName);
