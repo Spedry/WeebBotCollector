@@ -117,7 +117,7 @@ public class WBCWorkPlace extends WBCMessageSender {
         return animeList;
     }
 
-    private WCMAnime getAnime(int id) {
+    public WCMAnime getAnime(int id) {
         for (WCMAnime anime : getAnimeList().getAnimeList()) {
             if (anime.getId() == id)
                 return anime;
@@ -125,7 +125,7 @@ public class WBCWorkPlace extends WBCMessageSender {
         return null;
     }
 
-    private WCMAnime getAnime(String animeName) {
+    public WCMAnime getAnime(String animeName) {
         for (WCMAnime anime : getAnimeList().getAnimeList()) {
             if (anime.getAnimeName().equals(animeName))
                 return anime;
