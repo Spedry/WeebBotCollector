@@ -40,7 +40,6 @@ public class IRCBot extends ListenerAdapter implements Runnable {
     @Setter
     private String channelName;
 
-    private InetAddress inetAddress;
     public IRCBot(WBCWorkPlace workPlace) {
         /*try {
             inetAddress = InetAddress.getByName("");
