@@ -36,8 +36,11 @@ public class IRCBotListener extends ListenerAdapter {
     private final WBCWorkPlace workPlace;
     private final IRCBotWorkPlace botWorkPlace;
     private final IRCBotCommands botCommands;
+    @Getter
     private DownloadMessage currentlyDownloading;
+    @Getter
     private final ArrayList<DownloadMessage> downloadQueue = new ArrayList<DownloadMessage>();
+    @Getter
     private final ArrayList<DownloadMessage> alreadyReleasedQueue = new ArrayList<DownloadMessage>();
     public static Thread downloadAllInAlreadyReleasedQueue;
     private ReceiveFileTransfer fileTransfer;
@@ -53,6 +56,7 @@ public class IRCBotListener extends ListenerAdapter {
     public IRCBotListener(WBCWorkPlace workPlace, IRCBotCommands botCommands) {
         this.workPlace = workPlace;
         this.botCommands = botCommands;
+        botCommands.setBotListener(this);
         this.botWorkPlace = new IRCBotWorkPlace(workPlace);
         downloadAllInAlreadyReleasedQueue = new Thread(() -> {
             try {
