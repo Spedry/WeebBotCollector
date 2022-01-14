@@ -284,4 +284,16 @@ public class WBCWorkPlace extends WBCMessageSender {
             e.printStackTrace();
         }
     }
+
+    public void getDownloadQueueList(WCMessage wcMessage) {
+        send("setDownloadQueueList", botCommands.getDownloadQueueList());
+    }
+
+    public void getAlreadyReleasedQueueList(WCMessage wcMessage) {
+        send("setAlreadyReleasedQueueList", botCommands.getAlreadyReleasedQueueList());
+    }
+
+    public void getCurrentlyDownloadingAnime(WCMessage wcMessage) {
+        send("setCurrentlyDownloadingAnime", botCommands.getCurrentlyDownloadingAnime());
+    }
 }
