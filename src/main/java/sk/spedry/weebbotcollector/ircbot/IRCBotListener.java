@@ -521,8 +521,15 @@ public class IRCBotListener extends ListenerAdapter {
         // 1.3 TEST IF ANIME ISN'T ALREADY DOWNLOADED
         if (botWorkPlace.isDownloaded(alreadyReleased)) {
             logger.warn("This anime {}, is already downloaded", alreadyReleased.getAnimeName());
-            if (Objects.requireNonNull(new File(workPlace.getConf().getProperty("downloadFolder")).list()).length > workPlace.getAnime(alreadyReleased.getAnimeName()).getNumberOfDownloadedEpisodes())
-                workPlace.increaseAnimeDownload(alreadyReleased.getAnimeName());
+            File file = new File(workPlace.getConf().getProperty("downloadFolder") + "/" + alreadyReleased.getAnimeFolderName());
+            if (Objects.requireNonNull(file.list()).length > workPlace.getAnime(alreadyReleased.getAnimeFolderName()).getNumberOfDownloadedEpisodes()) {
+                workPlace.increaseAnimeDownload(alreadyReleased.getAnimeFolderName());
+            }
+            else {
+                logger.debug("Anime downloaded episodes ({}) => ({}) anime in folder",
+                        workPlace.getAnime(alreadyReleased.getAnimeFolderName()).getNumberOfDownloadedEpisodes(),
+                        Objects.requireNonNull(file.list()).length);
+            }
             return;
         }
         // 2. TEST IF ANIME ISN'T ALREADY IN RELEASED QUEUE
