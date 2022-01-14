@@ -7,7 +7,6 @@ import org.pircbotx.PircBotX;
 import org.pircbotx.exception.IrcException;
 import sk.spedry.weebbotcollector.ircbot.IRCBotCommands;
 import sk.spedry.weebbotcollector.ircbot.IRCBotListener;
-import sk.spedry.weebbotcollector.work.WBCWorkPlace;
 
 import java.io.IOException;
 
@@ -44,7 +43,7 @@ public class MultipleServersIRCBot implements Runnable {
         this.downloadFolder = userDir + "tempDownloads";
         bot = new PircBotX(configureBot());
         botCommands = new IRCBotCommands(bot);
-        botListener = new IRCBotListener(downloadFolder, null, botCommands);
+        botListener = new IRCBotListener(null, botCommands);
     }
 
     public final Configuration configureBot() {
