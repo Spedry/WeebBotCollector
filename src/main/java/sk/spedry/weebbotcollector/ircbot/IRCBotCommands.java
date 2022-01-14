@@ -1,10 +1,12 @@
 package sk.spedry.weebbotcollector.ircbot;
 
+import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pircbotx.PircBotX;
 import sk.spedry.weebbotcollector.ircbot.util.DownloadMessage;
 
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class IRCBotCommands {
@@ -12,6 +14,8 @@ public class IRCBotCommands {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final PircBotX bot;
+    @Setter
+    private IRCBotListener botListener;
 
     public IRCBotCommands(PircBotX bot) {
         this.bot = bot;
@@ -39,5 +43,17 @@ public class IRCBotCommands {
         }
         String searchFor = "!s " + downloadFrom + " " + animeName + " " + numberOfEp + " " + quality;
         sendMessage(target, searchFor);
+    }
+
+    public ArrayList<DownloadMessage> getDownloadQueueList() {
+        return botListener.getDownloadQueue();
+    }
+
+    public ArrayList<DownloadMessage> getAlreadyReleasedQueueList() {
+        return botListener.getAlreadyReleasedQueue();
+    }
+
+    public DownloadMessage getCurrentlyDownloadingAnime() {
+        return botListener.getCurrentlyDownloading();
     }
 }
