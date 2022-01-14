@@ -91,20 +91,22 @@ public class IRCBotListener extends ListenerAdapter {
                         logger.debug("Adding {} anime into release queue", released.getAnimeName());
                         alreadyReleasedQueue.add(released.getDownloadMessage());
                     }*/
-                    logger.info("These anime will be downloaded");
-                    for (DownloadMessage downloadMessage : alreadyReleasedQueue) {
-                        logger.info(downloadMessage.getAnimeName());
-                    }
-                    if (fileTransfer == null || !fileTransfer.getFileTransferStatus().isAlive()) {
-                        DownloadMessage downloadMessage = alreadyReleasedQueue.remove(0);
-                        logger.debug("Nothing is being downloaded, begin to download {}", downloadMessage.getAnimeName());
-                        botCommands.sendMessage(downloadMessage);
-                        currentlyDownloading = downloadMessage;
-                    }
                     if (!alreadyReleasedQueue.isEmpty()) {
-                        logger.debug("Putting rest into download queue");
-                        downloadQueue.addAll(alreadyReleasedQueue);
-                        alreadyReleasedQueue.clear();
+                        logger.info("These anime will be downloaded");
+                        for (DownloadMessage downloadMessage : alreadyReleasedQueue) {
+                            logger.info(downloadMessage.getAnimeName());
+                        }
+                        if (fileTransfer == null || !fileTransfer.getFileTransferStatus().isAlive()) {
+                            DownloadMessage downloadMessage = alreadyReleasedQueue.remove(0);
+                            logger.debug("Nothing is being downloaded, begin to download {}", downloadMessage.getAnimeName());
+                            botCommands.sendMessage(downloadMessage);
+                            currentlyDownloading = downloadMessage;
+                        }
+                        if (!alreadyReleasedQueue.isEmpty()) {
+                            logger.debug("Putting rest into download queue");
+                            downloadQueue.addAll(alreadyReleasedQueue);
+                            alreadyReleasedQueue.clear();
+                        }
                     }
                 }
             } catch (InterruptedException e) {
