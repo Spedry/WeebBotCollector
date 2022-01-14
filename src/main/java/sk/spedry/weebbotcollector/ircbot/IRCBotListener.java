@@ -39,9 +39,9 @@ public class IRCBotListener extends ListenerAdapter {
     @Getter
     private DownloadMessage currentlyDownloading;
     @Getter
-    private final ArrayList<DownloadMessage> downloadQueue = new ArrayList<DownloadMessage>();
+    private final ArrayList<DownloadMessage> downloadQueue = new ArrayList<>();
     @Getter
-    private final ArrayList<DownloadMessage> alreadyReleasedQueue = new ArrayList<DownloadMessage>();
+    private final ArrayList<DownloadMessage> alreadyReleasedQueue = new ArrayList<>();
     public static Thread downloadAllInAlreadyReleasedQueue;
     private ReceiveFileTransfer fileTransfer;
 
@@ -332,8 +332,7 @@ public class IRCBotListener extends ListenerAdapter {
 
         progressThread.start();
         logger.debug("Transfer of {} started, with {} size", animeName, botWorkPlace.bytesToReadable(fileSize));
-        //TODO AFTER SOME TIME TEST IF DOWNLOAD STARTED OR NOT
-        // IF NOT CLEAR CURRENT DOWNLOAD VARIABLE
+
         Thread testIfAnimeDownloadStarted = new Thread(() -> {
             try {
                 logger.trace("Thread to test download started");
@@ -352,6 +351,7 @@ public class IRCBotListener extends ListenerAdapter {
         });
         logger.debug("Starting thread to test if anime download started");
         testIfAnimeDownloadStarted.start();
+
         fileTransfer.transfer();
     }
 
@@ -405,7 +405,7 @@ public class IRCBotListener extends ListenerAdapter {
             logger.debug("IPV6 is disabled");
         }
 
-        logger.warn("Unknown user: {}, or couldn't parse received message: {}", userName, receivedMessage);
+        logger.debug("WARN Unknown user: {}, or couldn't parse received message: {} WARN", userName, receivedMessage);
     }
 
     private void downloadNewRelease(String receivedMessage) {
