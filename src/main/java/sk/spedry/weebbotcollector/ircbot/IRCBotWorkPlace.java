@@ -60,6 +60,9 @@ public class IRCBotWorkPlace {
                 }
             }
         }
+        else {
+            logger.error("Folder didn't exist");
+        }
         return false;
     }
 }
