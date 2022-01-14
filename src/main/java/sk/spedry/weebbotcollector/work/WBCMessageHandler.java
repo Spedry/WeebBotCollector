@@ -61,6 +61,18 @@ public class WBCMessageHandler {
                     case "removeAnimeFromList":
                         work.removeAnimeFromList(wcMessage);
                         break;
+                    case "getDownloadQueueList":
+                        //TODO ON CLIENT SIDE
+                        work.getDownloadQueueList(wcMessage);
+                        break;
+                    case "getAlreadyReleasedQueueList":
+                        //TODO ON CLIENT SIDE
+                        work.getAlreadyReleasedQueueList(wcMessage);
+                        break;
+                    case "getCurrentlyDownloading":
+                        //TODO ON CLIENT SIDE
+                        work.getCurrentlyDownloadingAnime(wcMessage);
+                        break;
 
 
                     case "clientDisconnected":
