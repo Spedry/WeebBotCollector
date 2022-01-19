@@ -422,7 +422,7 @@ public class IRCBotListener extends ListenerAdapter {
         }
 
         // get download message from
-        logger.trace("Going through all anime entries in jsonListFile: animeList.json");
+        logger.trace("Going through all anime entries in jsonListFile: {}", workPlace.getAnimeListFile());
         try {
             boolean match = false;
             for (WCMAnime anime : workPlace.getAnimeList().getAnimeList()) {
