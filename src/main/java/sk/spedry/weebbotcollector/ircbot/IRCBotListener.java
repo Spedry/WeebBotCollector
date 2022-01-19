@@ -302,6 +302,7 @@ public class IRCBotListener extends ListenerAdapter {
                 double progress = (double) fileTransfer.getFileTransferStatus().getBytesTransfered() / fileSize;
                 // SEND PROGRESS
                 workPlace.send("setProgress", new WCMProgress(progress));
+                logger.info("Downloaded: {}", fileTransfer.getFileTransferStatus().getPercentageComplete());
             }
             // IF FILE TRANSFER WAS SUCCESSFUL
             if (fileTransfer.getFileTransferStatus().isSuccessful()) {
