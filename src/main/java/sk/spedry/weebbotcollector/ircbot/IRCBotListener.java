@@ -324,6 +324,7 @@ public class IRCBotListener extends ListenerAdapter {
                     Thread.sleep(10000);
                     logger.debug("Repeating downloading of {}", currentlyDownloading.getAnimeName());
                     botCommands.sendMessage(currentlyDownloading);
+                    currentlyDownloading = null;
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
