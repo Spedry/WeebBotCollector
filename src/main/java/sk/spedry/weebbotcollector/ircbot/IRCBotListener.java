@@ -435,9 +435,10 @@ public class IRCBotListener extends ListenerAdapter {
                 }
             }
             if (!match)
-                throw new Exception("Anime didn't match");
+                throw new Exception();
         } catch (Exception e) {
-            logger.error(e);
+            logger.error("Anime didn't match with any anime in jsonListFile: {}", workPlace.getAnimeListFile());
+            return;
         }
 
         // Tests
