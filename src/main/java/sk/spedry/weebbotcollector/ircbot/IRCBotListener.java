@@ -339,12 +339,12 @@ public class IRCBotListener extends ListenerAdapter {
             try {
                 logger.trace("Thread to test download started");
                 Thread.sleep(20000);
-                if (fileTransfer == null || fileTransfer.getFileTransferStatus().isAlive()) {
+                if (fileTransfer.getFileTransferStatus().isAlive()) {
                     logger.info("Download of anime {} started", currentlyDownloading.getAnimeName());
                 }
                 else {
                     logger.error("Download of anime {} didn't start", currentlyDownloading.getAnimeName());
-                    // TODO REPEAT DOWNLOAD??
+                    fileTransfer.shutdown();
                 }
                 logger.trace("Thread to test download ended");
             } catch (InterruptedException e) {
