@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Iterator;
 
 public class WBCWorkPlace extends WBCMessageSender {
@@ -284,6 +285,28 @@ public class WBCWorkPlace extends WBCMessageSender {
             fileWriter.close();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void getAnimeToOpen(WCMessage wcMessage) {
+        String animeName = new Gson().fromJson(wcMessage.getMessageBody(), String.class);
+        File folder = new File(conf.getProperty("downloadFolder") + "/" + animeName);
+        logger.debug("Path is: {}", folder.getPath());
+        if (folder.exists()) {
+            File[] listOfFiles = folder.listFiles();
+
+            /*for (int i = 0; i < listOfFiles.length; i++) {
+                if (listOfFiles[i].isFile()) {
+                    System.out.println("File " + listOfFiles[i].getName());
+                } else if (listOfFiles[i].isDirectory()) {
+                    System.out.println("Directory " + listOfFiles[i].getName());
+                }
+            }*/
+            assert listOfFiles != null;
+            send("setAnimeToOpen", animeName + "/" + listOfFiles[listOfFiles.length-1].getName());
+        }
+        else {
+            logger.error("Folder {} at path {} didn't exist", folder.getName(), folder.getPath());
         }
     }
 
