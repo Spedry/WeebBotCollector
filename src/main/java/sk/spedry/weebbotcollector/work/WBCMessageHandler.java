@@ -61,6 +61,9 @@ public class WBCMessageHandler {
                     case "removeAnimeFromList":
                         work.removeAnimeFromList(wcMessage);
                         break;
+                    case "getAnimeToOpen":
+                        work.getAnimeToOpen(wcMessage);
+                        break;
                     case "getDownloadQueueList":
                         //TODO ON CLIENT SIDE
                         work.getDownloadQueueList(wcMessage);
