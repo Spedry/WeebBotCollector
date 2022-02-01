@@ -178,6 +178,14 @@ public class WBCWorkPlace extends WBCMessageSender {
         sendMessage(new WCMessage(id, new Gson().toJson(object)));
     }
 
+    public void send(String id, double object) {
+        sendMessage(new WCMessage(id, new Gson().toJson(object)));
+    }
+
+    public void send(String id, String object) {
+        sendMessage(new WCMessage(id, new Gson().toJson(object)));
+    }
+
     public void send(String id) {
         sendMessage(new WCMessage(id));
     }
