@@ -17,7 +17,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Iterator;
 
 public class WBCWorkPlace extends WBCMessageSender {
@@ -148,7 +147,7 @@ public class WBCWorkPlace extends WBCMessageSender {
         assert anime != null;
         anime.increaseNumberOfDownloadedEpisodes();
         saveUpdatedAnime(anime);
-        send("setProgress", new WCMProgress(0));
+        send("setProgress", 0);
     }
 
     private void saveUpdatedAnime(WCMAnime anime) {
