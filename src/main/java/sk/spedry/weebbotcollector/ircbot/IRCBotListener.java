@@ -18,8 +18,6 @@ import sk.spedry.weebbotcollector.ircbot.util.DownloadMessage;
 import sk.spedry.weebbotcollector.ircbot.util.SplitAlreadyReleased;
 import sk.spedry.weebbotcollector.ircbot.util.SplitNewRelease;
 import sk.spedry.weebbotcollector.util.WCMAnime;
-import sk.spedry.weebbotcollector.util.WCMAnimeName;
-import sk.spedry.weebbotcollector.util.WCMProgress;
 import sk.spedry.weebbotcollector.work.WBCWorkPlace;
 
 import java.io.File;
@@ -290,7 +288,7 @@ public class IRCBotListener extends ListenerAdapter {
         // THREAD THAT WILL KEEP AN EYE ON DOWNLOAD
         Thread progressThread = new Thread(() -> {
             // TELL CLIENT THAT THIS ANIME IS BEING DOWNLOADED
-            workPlace.send("setDownloadingAnimeName", new WCMAnimeName(animeName));
+            workPlace.send("setDownloadingAnimeName", animeName);
             // CYCLE TO INFORM CLIENT ABOUT DOWNLOAD PROGRESS
             while (!fileTransfer.getFileTransferStatus().isFinished()) {
                 try {
@@ -301,7 +299,7 @@ public class IRCBotListener extends ListenerAdapter {
                 //logger.debug("Downloaded: {}", fileTransfer.getFileTransferStatus().getBytesTransfered());
                 double progress = (double) fileTransfer.getFileTransferStatus().getBytesTransfered() / fileSize;
                 // SEND PROGRESS
-                workPlace.send("setProgress", new WCMProgress(progress));
+                workPlace.send("setProgress", progress);
                 logger.info("Downloaded: {}", fileTransfer.getFileTransferStatus().getPercentageComplete());
             }
             // IF FILE TRANSFER WAS SUCCESSFUL
@@ -309,7 +307,7 @@ public class IRCBotListener extends ListenerAdapter {
                 logger.debug("Clearing currently downloading variable");
                 currentlyDownloading = null;
                 workPlace.increaseAnimeDownload(animeName);
-                workPlace.send("setDownloadingAnimeName", new WCMAnimeName(""));
+                workPlace.send("setDownloadingAnimeName", "");
                 // START ANOTHER DOWNLOAD IF THERE IS ANY IN QUEUE
                 if (!downloadQueue.isEmpty()) {
                     logger.debug("Starting another download");
