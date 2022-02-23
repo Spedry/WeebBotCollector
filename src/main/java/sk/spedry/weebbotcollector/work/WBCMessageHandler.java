@@ -64,6 +64,9 @@ public class WBCMessageHandler {
                     case "getAnimeToOpen":
                         work.getAnimeToOpen(wcMessage);
                         break;
+                    case "openLastEpisode":
+                        work.setWasDownloaded(wcMessage);
+                        break;
                     case "getDownloadQueueList":
                         //TODO ON CLIENT SIDE
                         work.getDownloadQueueList(wcMessage);
