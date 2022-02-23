@@ -225,6 +225,8 @@ public class IRCBotListener extends ListenerAdapter {
                     logger.debug("Starting another download");
                     botCommands.sendMessage(downloadQueue.remove(0));
                 }
+                logger.debug("Setting wasDownloaded to true for {}", animeName);
+                workPlace.setWasDownloaded(animeName, true);
             }
             // TODO SOMETHING WENT WRONG
             else {
