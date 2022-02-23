@@ -150,6 +150,15 @@ public class WBCWorkPlace extends WBCMessageSender {
         send("setProgress", 0);
     }
 
+    public void setWasDownloaded(@NonNull String animeName, boolean wasDownloaded) {
+        logger.debug("Setting wasDownloaded to {} for anime {}", wasDownloaded, animeName);
+        WCMAnime anime = getAnime(animeName);
+        assert anime != null;
+        anime.setWasDownloaded(wasDownloaded);
+        saveUpdatedAnime(anime);
+        send("animeList", getAnimeList());
+    }
+
     private void saveUpdatedAnime(WCMAnime anime) {
         try {
             AnimeList animeList = getAnimeList();
@@ -327,5 +336,9 @@ public class WBCWorkPlace extends WBCMessageSender {
 
     public void getCurrentlyDownloadingAnime(WCMessage wcMessage) {
         send("setCurrentlyDownloadingAnime", botCommands.getCurrentlyDownloadingAnime());
+    }
+
+    public void setWasDownloaded(WCMessage wcMessage) {
+        setWasDownloaded(new Gson().fromJson(wcMessage.getMessageBody(), String.class), false);
     }
 }
