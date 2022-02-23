@@ -97,8 +97,7 @@ public class IRCBotListener extends ListenerAdapter {
                         if (fileTransfer == null || !fileTransfer.getFileTransferStatus().isAlive()) {
                             DownloadMessage downloadMessage = alreadyReleasedQueue.remove(0);
                             logger.debug("Nothing is being downloaded, begin to download {}", downloadMessage.getAnimeName());
-                            botCommands.sendMessage(downloadMessage);
-                            currentlyDownloading = downloadMessage;
+                            sendMessage(downloadMessage);
                         }
                         if (!alreadyReleasedQueue.isEmpty()) {
                             logger.debug("Putting rest into download queue");
@@ -217,13 +216,13 @@ public class IRCBotListener extends ListenerAdapter {
             // IF FILE TRANSFER WAS SUCCESSFUL
             if (fileTransfer.getFileTransferStatus().isSuccessful()) {
                 logger.debug("Clearing currently downloading variable");
-                currentlyDownloading = null;
+                clearCurrentlyDownloading();
                 workPlace.increaseAnimeDownload(animeName);
                 workPlace.send("setDownloadingAnimeName", "");
                 // START ANOTHER DOWNLOAD IF THERE IS ANY IN QUEUE
                 if (!downloadQueue.isEmpty()) {
                     logger.debug("Starting another download");
-                    botCommands.sendMessage(downloadQueue.remove(0));
+                    sendMessage(downloadQueue.remove(0));
                 }
                 logger.debug("Setting wasDownloaded to true for {}", animeName);
                 workPlace.setWasDownloaded(animeName, true);
@@ -235,8 +234,7 @@ public class IRCBotListener extends ListenerAdapter {
                 try {
                     Thread.sleep(10000);
                     logger.debug("Repeating downloading of {}", currentlyDownloading.getAnimeName());
-                    botCommands.sendMessage(currentlyDownloading);
-                    currentlyDownloading = null;
+                    sendMessage(currentlyDownloading);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -246,23 +244,8 @@ public class IRCBotListener extends ListenerAdapter {
 
         progressThread.start();
         logger.debug("Transfer of {} started, with {} size", animeName, botWorkPlace.bytesToReadable(fileSize));
-
-        Thread testIfAnimeDownloadStarted = new Thread(() -> {
-            try {
-                logger.trace("Thread to test download started");
-                Thread.sleep(20000);
-                if (fileTransfer.getFileTransferStatus().isAlive()) {
-                    logger.info("Download of anime {} started", currentlyDownloading.getAnimeName());
-                }
-                else {
-                    logger.error("Download of anime {} didn't start", currentlyDownloading.getAnimeName());
-                    fileTransfer.shutdown();
-                }
-                logger.trace("Thread to test download ended");
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        });
+        // TODO IF THREAD FROM sendMessage(downloadMessage) IS STILL RUNnING DONT CREATE NEW ONE. BUT EXTEND TIME ????
+        Thread testIfAnimeDownloadStarted = createTestThread();
         logger.debug("Starting thread to test if anime download started");
         testIfAnimeDownloadStarted.start();
 
@@ -395,14 +378,7 @@ public class IRCBotListener extends ListenerAdapter {
         else {
             logger.debug("Sending message to download {}", newRelease.getAnimeName());
             // 4.2 Send download message
-            botCommands.sendMessage(
-                    newRelease.getDownloadMessage().getBotName(),
-                    newRelease.getDownloadMessage().getMessage());
-            // 4.3 set currentlyDownloading anime
-            currentlyDownloading = new DownloadMessage(
-                    newRelease.getDownloadMessage().getBotName(),
-                    newRelease.getDownloadMessage().getMessage(),
-                    newRelease.getAnimeName());
+            sendMessage(newRelease.getDownloadMessage());
         }
     }
 
@@ -457,5 +433,45 @@ public class IRCBotListener extends ListenerAdapter {
 
         logger.debug("Adding {} anime into release list", alreadyReleased.getAnimeName());
         alreadyReleasedQueue.add(alreadyReleased.getDownloadMessage());
+    }
+
+    /**************************METHODS**************************/
+
+    private void sendMessage(DownloadMessage downloadMessage) {
+        botCommands.sendMessage(downloadMessage);
+        setCurrentlyDownloading(downloadMessage);
+        // TODO AFTER SENDING THIS THREAD IS CREATED
+        Thread testIfAnimeDownloadStarted = createTestThread();
+        logger.debug("Starting thread to test if anime download started");
+        testIfAnimeDownloadStarted.start();
+    }
+
+    // TODO ADD FUNCTION SO ONLY ONE THREAD IS CREATED
+    private Thread createTestThread() {
+        return new Thread(() -> {
+            try {
+                logger.trace("Thread to test download started");
+                Thread.sleep(20000);
+                // TODO INFORM CLIENT SIDE
+                if (fileTransfer.getFileTransferStatus().isAlive()) {
+                    logger.info("Download of anime {} started", currentlyDownloading.getAnimeName());
+                } else {
+                    logger.error("Download of anime {} didn't start", currentlyDownloading.getAnimeName());
+                    fileTransfer.shutdown();
+                    sendMessage(currentlyDownloading);
+                }
+                logger.trace("Thread to test download ended");
+            } catch (InterruptedException e) {
+                logger.error(e);
+            }
+        });
+    }
+
+    private void clearCurrentlyDownloading() {
+        currentlyDownloading = null;
+    }
+
+    private void setCurrentlyDownloading(DownloadMessage downloadMessage) {
+        this.currentlyDownloading = downloadMessage;
     }
 }
