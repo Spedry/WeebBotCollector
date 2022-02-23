@@ -325,15 +325,15 @@ public class WBCWorkPlace extends WBCMessageSender {
             logger.error("Folder {} at path {} didn't exist", folder.getName(), folder.getPath());
         }
     }
-
+    //TODO
     public void getDownloadQueueList(WCMessage wcMessage) {
         send("setDownloadQueueList", botCommands.getDownloadQueueList());
     }
-
+    //TODO
     public void getAlreadyReleasedQueueList(WCMessage wcMessage) {
         send("setAlreadyReleasedQueueList", botCommands.getAlreadyReleasedQueueList());
     }
-
+    //TODO
     public void getCurrentlyDownloadingAnime(WCMessage wcMessage) {
         send("setCurrentlyDownloadingAnime", botCommands.getCurrentlyDownloadingAnime());
     }
