@@ -8,7 +8,7 @@
         <Console name="console" target="SYSTEM_OUT">
             <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level [%L] - %msg%n" />
         </Console>
-        <File name="fileLogger-weebBotCollector" fileName="${log-path}/weebBotCollector.log" immediateFlush="true" append="false">
+        <File name="fileLogger-weebBotCollector" fileName="${log-path}/weebBotCollector-${date:yyyy-MM-dd}.log" immediateFlush="true" append="true">
             <PatternLayout pattern="%d{yyy-MM-dd HH:mm:ss.SSS} [%t] %-5level [%L] - %msg%n"/>
         </File>
     </Appenders>
