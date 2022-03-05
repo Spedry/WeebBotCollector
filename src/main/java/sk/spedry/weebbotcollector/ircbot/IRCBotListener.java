@@ -1,6 +1,7 @@
 package sk.spedry.weebbotcollector.ircbot;
 
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 
 import org.apache.logging.log4j.LogManager;
@@ -115,7 +116,7 @@ public class IRCBotListener extends ListenerAdapter {
     }
 
     /**************************BOT EVENTS**************************/
-
+    // ONLY SEARCHBOT
     @Override
     public void onGenericMessage(GenericMessageEvent event) {
         if (workPlace.getConf().getProperty("showGenericMessage").equals("true"))
@@ -125,13 +126,13 @@ public class IRCBotListener extends ListenerAdapter {
         if (event.getUser().getNick().equals(workPlace.getConf().getProperty("searchBot")))
             processMessage(event.getUser(), event.getMessage());
     }
-
+    // ALL OTHERS
     @Override
     public void onMessage(MessageEvent event) {
         logger.trace("onMessage");
         processMessage(event.getUser(), event.getMessage());
     }
-
+    // PRIVATE MSG LIKE FROM MY SELF
     @Override
     public void onPrivateMessage(PrivateMessageEvent event) {
         logger.trace("onPrivateMessage");
@@ -211,7 +212,7 @@ public class IRCBotListener extends ListenerAdapter {
                 double progress = (double) fileTransfer.getFileTransferStatus().getBytesTransfered() / fileSize;
                 // SEND PROGRESS
                 workPlace.send("setProgress", progress);
-                logger.info("Downloaded: {}", fileTransfer.getFileTransferStatus().getPercentageComplete());
+                //logger.info("Downloaded: {}", fileTransfer.getFileTransferStatus().getPercentageComplete());
             }
             // IF FILE TRANSFER WAS SUCCESSFUL
             if (fileTransfer.getFileTransferStatus().isSuccessful()) {
@@ -315,7 +316,7 @@ public class IRCBotListener extends ListenerAdapter {
         else {
             logger.debug("IPV6 is disabled");
         }
-
+        // TODO ADD CONFIG FOR LOGS THAT WILL BE LOGGED ONLY IF PARAMETER == TRUE
         logger.debug("WARN Unknown user: {}, or couldn't parse received message: {} WARN", userName, receivedMessage);
     }
 

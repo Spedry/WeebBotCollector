@@ -241,6 +241,7 @@ public class WBCWorkPlace extends WBCMessageSender {
                                     number = "0" + i;
                                 else
                                     number = String.valueOf(i);
+                                logger.debug("Cycle to download already released anime, downloading anime {} episode {}", wcmAnime.getAnimeName(), number);
                                 botCommands.searchAnime(conf.getProperty("searchBot"), conf.getProperty("downloadFrom"), wcmAnime.getAnimeName(), number, wcmAnime.getTypeOfQuality().getName());
                                 java.util.concurrent.TimeUnit.SECONDS.sleep(Integer.parseInt(conf.getProperty("waitBeforeSearch")));
                             } catch (InterruptedException e) {
