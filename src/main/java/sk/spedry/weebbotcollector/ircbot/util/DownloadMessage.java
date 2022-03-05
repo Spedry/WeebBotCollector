@@ -1,6 +1,7 @@
 package sk.spedry.weebbotcollector.ircbot.util;
 
 import lombok.Getter;
+import lombok.Setter;
 
 public class DownloadMessage {
     @Getter
@@ -11,6 +12,9 @@ public class DownloadMessage {
     private final String message;
     @Getter
     private String animeName;
+    @Getter
+    @Setter
+    private boolean willSetReleaseDate = false;
 
     public DownloadMessage(String message) {
         this.wholeMessage = message;

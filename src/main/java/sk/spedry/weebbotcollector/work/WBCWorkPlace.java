@@ -159,6 +159,16 @@ public class WBCWorkPlace extends WBCMessageSender {
         send("animeList", getAnimeList());
     }
 
+    public void setReleaseDate(@NonNull String animeName) {
+        LocalDate localDate = LocalDate.now();
+        logger.debug("Setting releaseDate to {} for anime {}", localDate, animeName);
+        WCMAnime anime = getAnime(animeName);
+        assert anime != null;
+        anime.setReleaseDate(localDate);
+        saveUpdatedAnime(anime);
+        send("animeList", getAnimeList());
+    }
+
     private void saveUpdatedAnime(WCMAnime anime) {
         try {
             AnimeList animeList = getAnimeList();

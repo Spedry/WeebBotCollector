@@ -215,17 +215,31 @@ public class IRCBotListener extends ListenerAdapter {
             }
             // IF FILE TRANSFER WAS SUCCESSFUL
             if (fileTransfer.getFileTransferStatus().isSuccessful()) {
+                logger.debug("Increasing number of downloaded episodes for {}", animeName);
+                workPlace.increaseAnimeDownload(animeName);
+
+                logger.debug("Setting wasDownloaded to true for {}", animeName);
+                workPlace.setWasDownloaded(animeName, true);
+
+                if (currentlyDownloading.isWillSetReleaseDate()) {
+                    logger.debug("Setting releaseDate to today's date for {}", animeName);
+                    workPlace.setReleaseDate(animeName);
+                    logger.debug("Setting setReleaseDate boolean to: false");
+                }
+                else {
+                    logger.debug("This download didn't start onMessage, not actual release date");
+                }
+
+                workPlace.send("setDownloadingAnimeName", "");
+
                 logger.debug("Clearing currently downloading variable");
                 clearCurrentlyDownloading();
-                workPlace.increaseAnimeDownload(animeName);
-                workPlace.send("setDownloadingAnimeName", "");
+
                 // START ANOTHER DOWNLOAD IF THERE IS ANY IN QUEUE
                 if (!downloadQueue.isEmpty()) {
                     logger.debug("Starting another download");
                     sendMessage(downloadQueue.remove(0));
                 }
-                logger.debug("Setting wasDownloaded to true for {}", animeName);
-                workPlace.setWasDownloaded(animeName, true);
             }
             // TODO SOMETHING WENT WRONG
             else {
@@ -366,10 +380,14 @@ public class IRCBotListener extends ListenerAdapter {
             logger.debug("This anime {}, is already downloaded", newRelease.getAnimeName());
         }
 
-        // 4. TEST IF IS SOMETHING IS BEING DOWNLOADED
+        // 4.3 Setting setReleaseDate to true
+        logger.debug("Setting setReleaseDate boolean to: true (that means all test went smoothly)");
+        newRelease.getDownloadMessage().setWillSetReleaseDate(true);
+
+        // 5. TEST IF IS SOMETHING IS BEING DOWNLOADED
         if (fileTransfer != null && fileTransfer.getFileTransferStatus().isAlive()) {
             logger.debug("Adding {} into download queue", newRelease.getAnimeName());
-            // 4.1 Add anime into download queue
+            // 5.1 Add anime into download queue
             downloadQueue.add(new DownloadMessage(
                     newRelease.getDownloadMessage().getBotName(),
                     newRelease.getDownloadMessage().getMessage(),
@@ -377,7 +395,7 @@ public class IRCBotListener extends ListenerAdapter {
         }
         else {
             logger.debug("Sending message to download {}", newRelease.getAnimeName());
-            // 4.2 Send download message
+            // 5.2 Send download message
             sendMessage(newRelease.getDownloadMessage());
         }
     }
@@ -468,10 +486,14 @@ public class IRCBotListener extends ListenerAdapter {
     }
 
     private void clearCurrentlyDownloading() {
-        currentlyDownloading = null;
+        this.currentlyDownloading = null;
     }
 
-    private void setCurrentlyDownloading(DownloadMessage downloadMessage) {
-        this.currentlyDownloading = downloadMessage;
+    private void setCurrentlyDownloading(@NonNull DownloadMessage downloadMessage) {
+        if (this.currentlyDownloading != null)
+            this.currentlyDownloading = downloadMessage;
+        else {
+            logger.error("Couldn't replace currentlyDownloading var, was not empty: tried to replace {} with {}", currentlyDownloading.getAnimeName(), downloadMessage.getAnimeName());
+        }
     }
 }
