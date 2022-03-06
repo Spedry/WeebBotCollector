@@ -1,7 +1,9 @@
 package sk.spedry.weebbotcollector.ircbot.util;
 
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
+import org.checkerframework.common.reflection.qual.NewInstance;
 
 public class DownloadMessage {
     @Getter
@@ -16,14 +18,14 @@ public class DownloadMessage {
     @Setter
     private boolean willSetReleaseDate = false;
 
-    public DownloadMessage(String message) {
+    public DownloadMessage(@NonNull String message) {
         this.wholeMessage = message;
         String[] spliced = message.split(" ");
         this.botName = spliced[1];
         this.message = spliced[2] + " " + spliced[3] + " " + spliced[4];
     }
 
-    public DownloadMessage(String message, String animeName) {
+    public DownloadMessage(@NonNull String message, @NonNull String animeName) {
         this.wholeMessage = message;
         String[] spliced = message.split(" ");
         this.botName = spliced[1];
@@ -31,7 +33,7 @@ public class DownloadMessage {
         this.animeName = animeName;
     }
 
-    public DownloadMessage(String botName, String message, String animeName) {
+    public DownloadMessage(@NonNull String botName, @NonNull String message, @NonNull String animeName) {
         this.wholeMessage = "/msg " + botName + " " + message;
         this.botName = botName;
         this.message = message;
