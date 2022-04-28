@@ -32,6 +32,7 @@ import java.util.Objects;
 public class IRCBotListener extends ListenerAdapter {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
+    @Getter
     private final WBCWorkPlace workPlace;
     private final IRCBotWorkPlace botWorkPlace;
     private final IRCBotCommands botCommands;
@@ -43,6 +44,7 @@ public class IRCBotListener extends ListenerAdapter {
     private final ArrayList<DownloadMessage> alreadyReleasedQueue = new ArrayList<>();
     public static Thread downloadAllInAlreadyReleasedQueue;
     private ReceiveFileTransfer fileTransfer;
+    private testFunctions testFunctions;
 
     // BOT SETTINGS
     @Setter
@@ -53,10 +55,12 @@ public class IRCBotListener extends ListenerAdapter {
     private boolean disIpv6 = true;
 
     public IRCBotListener(WBCWorkPlace workPlace, IRCBotCommands botCommands) {
+        logger.traceEntry();
         this.workPlace = workPlace;
         this.botCommands = botCommands;
         botCommands.setBotListener(this);
         this.botWorkPlace = new IRCBotWorkPlace(workPlace);
+        this.testFunctions = new testFunctions(workPlace, botCommands);
         downloadAllInAlreadyReleasedQueue = new Thread(() -> {
             try {
                 while (true) {
@@ -100,40 +104,47 @@ public class IRCBotListener extends ListenerAdapter {
         });
         downloadAllInAlreadyReleasedQueue.setDaemon(true);
         downloadAllInAlreadyReleasedQueue.start();
+        logger.traceExit();
     }
 
     /**************************BOT EVENTS**************************/
     // ONLY SEARCHBOT
     @Override
     public void onGenericMessage(GenericMessageEvent event) {
-        if (workPlace.getConf().getProperty("showGenericMessage").equals("true"))
-            logger.info("Generic message: {}", event.getMessage());
+        if (workPlace.getConf().getBoolProperty("traceReceivedMessage"))
+            logger.traceEntry(event.getMessage());
         else
-            logger.trace("onGenericMessage");
+            logger.traceEntry();
         if (event.getUser().getNick().equals(workPlace.getConf().getProperty("searchBot")))
             processMessage(event.getUser(), event.getMessage());
+        logger.traceExit();
     }
     // ALL OTHERS
     @Override
     public void onMessage(MessageEvent event) {
-        logger.trace("onMessage");
+        if (workPlace.getConf().getBoolProperty("traceReceivedMessage"))
+            logger.traceEntry(event.getMessage());
+        else
+            logger.traceEntry();
         processMessage(event.getUser(), event.getMessage());
+        logger.traceExit();
     }
     // PRIVATE MSG LIKE FROM MY SELF
     @Override
     public void onPrivateMessage(PrivateMessageEvent event) {
-        logger.trace("onPrivateMessage");
+        logger.traceEntry("From: {} : {}", event.getUser().toString(), event.getMessage());
         // DONT ADD
         if (!Objects.requireNonNull(event.getUser()).toString().toLowerCase().contains("spedry"))
             return;
         // THIS
 
         processMessage(event.getUser(), event.getMessage());
+        logger.traceExit();
     }
 
     @Override
     public void onIncomingFileTransfer(IncomingFileTransferEvent event) throws Exception {
-        logger.trace("On incoming file transfer method started");
+        logger.traceEntry(event.getSafeFilename());
         super.onIncomingFileTransfer(event);
         // RECEIVED FILE NAME
         String receivedFileName = event.getSafeFilename();
@@ -246,12 +257,13 @@ public class IRCBotListener extends ListenerAdapter {
 
         progressThread.start();
         logger.debug("Transfer of {} started, with {} size", animeName, botWorkPlace.bytesToReadable(fileSize));
-        // TODO IF THREAD FROM sendMessage(downloadMessage) IS STILL RUNnING DONT CREATE NEW ONE. BUT EXTEND TIME ????
+        // TODO IF THREAD FROM sendMessage(downloadMessage) IS STILL RUNNING DONT CREATE NEW ONE. BUT EXTEND TIME ????
         Thread testIfAnimeDownloadStarted = createTestThread();
         logger.debug("Starting thread to test if anime download started");
         testIfAnimeDownloadStarted.start();
 
         fileTransfer.transfer();
+        logger.traceExit(fileTransfer.getFileTransferStatus().isSuccessful());
     }
 
     @Override
@@ -262,7 +274,7 @@ public class IRCBotListener extends ListenerAdapter {
     /**************************FUNCTIONS**************************/
 
     private void processMessage(User user, String message) {
-        logger.trace("processMessage method");
+        logger.traceEntry("From: {} : {}", user.toString(), message);
         if (disIpv6 && Objects.requireNonNull(user).getNick().toLowerCase().contains("ipv6")) {
             logger.debug("IPV6 is disabled");
             return;
@@ -303,12 +315,13 @@ public class IRCBotListener extends ListenerAdapter {
         else {
             logger.debug("IPV6 is disabled");
         }
-        // TODO ADD CONFIG FOR LOGS THAT WILL BE LOGGED ONLY IF PARAMETER == TRUE
-        logger.debug("WARN Unknown user: {}, or couldn't parse received message: {} WARN", userName, receivedMessage);
+        if (workPlace.getConf().getBoolProperty("logUnknownUsers"))
+            logger.debug("WARN Unknown user: {}, or couldn't parse received message: {} WARN", userName, receivedMessage);
+        logger.traceExit();
     }
 
     private void downloadNewRelease(String receivedMessage) {
-        logger.trace("downloadNewRelease method");
+        logger.traceEntry();
         // Split message
         SplitNewRelease newRelease;
         try {
@@ -340,39 +353,33 @@ public class IRCBotListener extends ListenerAdapter {
 
         // Tests
         // 1. TEST IF ANIME ISN'T CURRENTLY BEING DOWNLOADED
-        if (currentlyDownloading != null && newRelease.getAnimeName().contains(currentlyDownloading.getAnimeName())) {
-            //TODO IF EXISTING FILE < ACTUAL FILE SIZE
-            logger.debug("This anime {}, is currently being downloaded", newRelease.getAnimeName());
+        if (testFunctions.testIfAnimeIsNotCurrentlyBeingDownloaded(newRelease))
             return;
-        }
 
         // 2. TEST IF ANIME ISN'T ALREADY IN QUEUE
-        for (DownloadMessage downloadMsg : downloadQueue) {
-            if (newRelease.getAnimeName().contains(downloadMsg.getAnimeName())) {
-                logger.debug("This anime {}, is already queue", newRelease.getAnimeName());
-                return;
-            }
-        }
+        if (testFunctions.testIfAnimeIsInDownloadQueue(newRelease))
+            return;
 
-        // 3.1 SET ANIME FOLDER NAME
+        //Set anime folder name
         newRelease.setAnimeFolderName(workPlace.getAnimeList(), newRelease.getAnimeName());
 
-        // 3.2 TEST ANIME NAME
+        // 3.1 TEST ANIME NAME
         if (newRelease.getAnimeFolderName() == null) {
             logger.error("Anime folder name was empty!");
             return;
         }
 
-        // 3.3 TEST IF ANIME ISN'T ALREADY DOWNLOADED
-        if (botWorkPlace.isDownloaded(newRelease)) {
+        // 3.2 TEST IF ANIME ISN'T ALREADY DOWNLOADED
+        if (testFunctions.testIfAnimeIsAlreadyDownloaded(newRelease)) {
             logger.debug("This anime {}, is already downloaded", newRelease.getAnimeName());
+            return;
         }
 
-        // 4.3 Setting setReleaseDate to true
+        //Setting setReleaseDate to true
         logger.debug("Setting setReleaseDate boolean to: true (that means all test went smoothly)");
         newRelease.getDownloadMessage().setWillSetReleaseDate(true);
 
-        // 5. TEST IF IS SOMETHING IS BEING DOWNLOADED
+        // 4. TEST IF IS SOMETHING IS BEING DOWNLOADED
         if (fileTransfer != null && fileTransfer.getFileTransferStatus().isAlive()) {
             logger.debug("Adding {} into download queue", newRelease.getAnimeName());
             // 5.1 Add anime into download queue
@@ -386,10 +393,11 @@ public class IRCBotListener extends ListenerAdapter {
             // 5.2 Send download message
             sendMessage(newRelease.getDownloadMessage());
         }
+        logger.traceExit();
     }
 
     private void downloadAlreadyReleased(String receivedMessage) {
-        logger.trace("downloadAlreadyReleased method");
+        logger.traceEntry();
         // Split message
         SplitAlreadyReleased alreadyReleased;
         try {
@@ -408,18 +416,30 @@ public class IRCBotListener extends ListenerAdapter {
             return;
         }
 
-        // 1.1 SET ANIME FOLDER NAME
+        //Test
+        // 1. TEST IF IT'S ALLOWED BOT
+        logger.debug("Testing if bot bot is allowed");
+        if (!testFunctions.testIfBotIsAllowed(alreadyReleased))
+            return;
+
+        // 2.1 SET ANIME FOLDER NAME
+        logger.debug("Setting anime folder name");
         alreadyReleased.setAnimeFolderName(workPlace.getAnimeList(), alreadyReleased.getAnimeName());
-        // 1.2 TEST ANIME NAME
+        // 2.2 TEST ANIME NAME
+        logger.debug("Test if anime folder name is empty");
         if (alreadyReleased.getAnimeFolderName() == null) {
             logger.warn("Anime folder name was empty!");
             return;
         }
-        // 1.3 TEST IF ANIME ISN'T ALREADY DOWNLOADED
-        if (botWorkPlace.isDownloaded(alreadyReleased)) {
-            logger.warn("This anime {}, is already downloaded", alreadyReleased.getAnimeName());
+        // 2.3 TEST IF ANIME ISN'T ALREADY DOWNLOADED
+        logger.debug("Test if anime isn't already downloaded");
+        //TODO DOESNT WORK
+        if (testFunctions.testIfAnimeIsAlreadyDownloaded(alreadyReleased)) {
+            logger.info("This anime {}, is already downloaded", alreadyReleased.getAnimeName());
             File file = new File(workPlace.getConf().getProperty("downloadFolder") + "/" + alreadyReleased.getAnimeFolderName());
+
             if (Objects.requireNonNull(file.list()).length > workPlace.getAnime(alreadyReleased.getAnimeFolderName()).getNumberOfDownloadedEpisodes()) {
+                // TODO REWORK (Change it to represent current number of files/episodes in folder)
                 workPlace.increaseAnimeDownload(alreadyReleased.getAnimeFolderName());
             }
             else {
@@ -429,40 +449,44 @@ public class IRCBotListener extends ListenerAdapter {
             }
             return;
         }
-        // 2. TEST IF ANIME ISN'T ALREADY IN RELEASED QUEUE
-        for (DownloadMessage downloadMessage : alreadyReleasedQueue) {
-            if (downloadMessage.getAnimeName().equals(alreadyReleased.getDownloadMessage().getAnimeName())) {
-                logger.warn("This anime {}, is already in release queue", alreadyReleased.getAnimeName());
-                return;
-            }
-        }
+        // 3. TEST IF ANIME ISN'T ALREADY IN RELEASED QUEUE
+        logger.debug("Test if anime isn't already in release queue");
+        if (testFunctions.testIfAnimeIsInReleaseQueue(alreadyReleased))
+            return;
 
         logger.debug("Adding {} anime into release list", alreadyReleased.getAnimeName());
         alreadyReleasedQueue.add(alreadyReleased.getDownloadMessage());
+        logger.traceExit();
     }
 
     /**************************METHODS**************************/
 
     private void sendMessage(DownloadMessage downloadMessage) {
+        logger.traceEntry();
         botCommands.sendMessage(downloadMessage);
         setCurrentlyDownloading(downloadMessage);
         // TODO AFTER SENDING THIS THREAD IS CREATED
         Thread testIfAnimeDownloadStarted = createTestThread();
         logger.debug("Starting thread to test if anime download started");
         testIfAnimeDownloadStarted.start();
+        logger.traceExit();
     }
 
     // TODO ADD FUNCTION SO ONLY ONE THREAD IS CREATED
     private Thread createTestThread() {
-        return new Thread(() -> {
+        logger.traceEntry();
+        return logger.traceExit(new Thread(() -> {
             try {
                 logger.trace("Thread to test download started");
-                Thread.sleep(20000);
+                Thread.sleep(Long.parseLong(workPlace.getConf().getProperty("waitBeforeRestartingDownload")));
                 // TODO INFORM CLIENT SIDE
-                if (fileTransfer.getFileTransferStatus().isAlive()) {
-                    logger.info("Download of anime {} started", currentlyDownloading.getAnimeName());
+                if (fileTransfer != null && fileTransfer.getFileTransferStatus().isAlive()) {
+                    logger.info("Download of anime {} started", currentlyDownloading.getAnimeFileName());
                 } else {
-                    logger.error("Download of anime {} didn't start", currentlyDownloading.getAnimeName());
+                    //TODO after many failed attempts stop
+                    // Add attempts counter
+                    // if n attempts pause for seconds then send OR restart bot
+                    logger.error("Download of anime {} didn't start", currentlyDownloading.getAnimeFileName());
                     fileTransfer.shutdown();
                     sendMessage(currentlyDownloading);
                 }
@@ -470,7 +494,7 @@ public class IRCBotListener extends ListenerAdapter {
             } catch (InterruptedException e) {
                 logger.error(e);
             }
-        });
+        }));
     }
 
     private void clearCurrentlyDownloading() {
@@ -478,10 +502,18 @@ public class IRCBotListener extends ListenerAdapter {
     }
 
     private void setCurrentlyDownloading(@NonNull DownloadMessage downloadMessage) {
-        if (this.currentlyDownloading != null)
+        logger.traceEntry();
+        if (this.currentlyDownloading == null) {
             this.currentlyDownloading = downloadMessage;
+            logger.traceExit("Replaced:true Was equal:false");
+        }
+        else if (currentlyDownloading.getAnimeName().equals(downloadMessage.getAnimeName())) {
+            logger.debug("Variable currentlyDownloading won't be replaced with the same download message");
+            logger.traceExit("Replaced:false Was equal:true");
+        }
         else {
-            logger.error("Couldn't replace currentlyDownloading var, was not empty: tried to replace {} with {}", currentlyDownloading.getAnimeName(), downloadMessage.getAnimeName());
+            logger.error("Couldn't replace currentlyDownloading var, was not empty: tried to replace {} with {}", currentlyDownloading.getAnimeFileName(), downloadMessage.getAnimeFileName());
+            logger.traceExit("Replaced:false Was equal:false");
         }
     }
 }
