@@ -66,6 +66,18 @@ public class IRCBotListener extends ListenerAdapter {
                     }
                     logger.debug("Waiting ended");
                     if (!alreadyReleasedQueue.isEmpty()) {
+                        logger.debug("Removing older versions");
+                        ArrayList<DownloadMessage> tempAlreadyReleasedQueue = new ArrayList<DownloadMessage>(alreadyReleasedQueue);
+                            for (DownloadMessage downloadMessage1 : tempAlreadyReleasedQueue) {
+                                for (DownloadMessage downloadMessage2 : tempAlreadyReleasedQueue) {
+                                    if (downloadMessage1.getEpisodeNumber().getEpisodeNumber() == downloadMessage2.getEpisodeNumber().getEpisodeNumber()) {
+                                        if (downloadMessage1.getEpisodeNumber().getEpisodeCode() < downloadMessage2.getEpisodeNumber().getEpisodeCode()) {
+                                            alreadyReleasedQueue.remove(downloadMessage1);
+                                        }
+                                    }
+                                }
+                            }
+
                         logger.info("These anime will be downloaded");
                         for (DownloadMessage downloadMessage : alreadyReleasedQueue) {
                             logger.info(downloadMessage.getAnimeName());
