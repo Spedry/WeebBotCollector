@@ -65,31 +65,6 @@ public class IRCBotListener extends ListenerAdapter {
                         IRCBotListener.class.wait();
                     }
                     logger.debug("Waiting ended");
-                    /*ArrayList<DownloadMessage> alreadyReleasedQueue = new ArrayList<DownloadMessage>();
-                    filer: for (SplitAlreadyReleased released : alreadyReleasedList) {
-                        // 1.1 SET ANIME FOLDER NAME
-                        released.setAnimeFolderName(workPlace.getAnimeList(), released.getAnimeName());
-                        // 1.2 TEST ANIME NAME
-                        if (released.getAnimeFolderName() == null) {
-                            logger.error("Anime folder name was empty!");
-                            continue;
-                        }
-                        // 1.3 TEST IF ANIME ISN'T ALREADY DOWNLOADED
-                        if (botWorkPlace.isDownloaded(released)) {
-                            logger.debug("This anime {}, is already downloaded", released.getAnimeName());
-                            continue;
-                        }
-                        // 2. TEST IF ANIME ISN'T ALREADY IN RELEASED QUEUE
-                        for (DownloadMessage downloadMessage : alreadyReleasedQueue) {
-                            if (downloadMessage.getAnimeName().equals(released.getDownloadMessage().getAnimeName())) {
-                                logger.info("This anime {}, is already in release queue", released.getAnimeName());
-                                continue filer;
-                            }
-                        }
-
-                        logger.debug("Adding {} anime into release queue", released.getAnimeName());
-                        alreadyReleasedQueue.add(released.getDownloadMessage());
-                    }*/
                     if (!alreadyReleasedQueue.isEmpty()) {
                         logger.info("These anime will be downloaded");
                         for (DownloadMessage downloadMessage : alreadyReleasedQueue) {
