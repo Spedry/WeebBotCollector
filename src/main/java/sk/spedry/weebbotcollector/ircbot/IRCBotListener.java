@@ -80,11 +80,11 @@ public class IRCBotListener extends ListenerAdapter {
 
                         logger.info("These anime will be downloaded");
                         for (DownloadMessage downloadMessage : alreadyReleasedQueue) {
-                            logger.info(downloadMessage.getAnimeName());
+                            logger.info(downloadMessage.getAnimeFileName());
                         }
                         if (fileTransfer == null || !fileTransfer.getFileTransferStatus().isAlive()) {
                             DownloadMessage downloadMessage = alreadyReleasedQueue.remove(0);
-                            logger.debug("Nothing is being downloaded, begin to download {}", downloadMessage.getAnimeName());
+                            logger.debug("Nothing is being downloaded, begin to download {}", downloadMessage.getAnimeFileName());
                             sendMessage(downloadMessage);
                         }
                         if (!alreadyReleasedQueue.isEmpty()) {
@@ -232,10 +232,10 @@ public class IRCBotListener extends ListenerAdapter {
             // TODO SOMETHING WENT WRONG
             else {
                 logger.error("FILE TRANSFER WASN'T SUCCESSFUL");
-                logger.error("Anime that failed is {}", currentlyDownloading.getAnimeName());
+                logger.error("Anime that failed is {}", currentlyDownloading.getAnimeFileName());
                 try {
                     Thread.sleep(10000);
-                    logger.debug("Repeating downloading of {}", currentlyDownloading.getAnimeName());
+                    logger.debug("Repeating downloading of {}", currentlyDownloading.getAnimeFileName());
                     sendMessage(currentlyDownloading);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
