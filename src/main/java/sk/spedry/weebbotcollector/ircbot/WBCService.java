@@ -12,10 +12,12 @@ public class WBCService {
     private Thread botThread;
 
     public WBCService() {
-        logger.trace("Creating Bot service");
+        logger.traceEntry();
+        logger.traceExit();
     }
 
     public void createBotThread(WBCWorkPlace workPlace) {
+        logger.traceEntry();
         if (botThread == null) {
             botThread = new Thread(bot = new IRCBot(workPlace));
             botThread.setName(bot.getClass().getSimpleName());
@@ -23,22 +25,29 @@ public class WBCService {
             logger.debug("Setup.json was filled with necessary information, starting bot");
             startBot();
         }
+        logger.traceExit();
     }
 
     public void startBot() {
+        logger.traceEntry();
         if (!botThread.isAlive()) {
             logger.debug("Starting IRC bot thread");
             botThread.start();
         }
         else
             logger.error("Bot thread was still alive couldn't create new thread");
+        logger.traceExit();
     }
 
     public void closeBot() {
+        logger.traceEntry();
         bot.closeBot();
+        logger.traceExit();
     }
 
     public void resetBot() {
+        logger.traceEntry();
         bot.resetBot();
+        logger.traceExit();
     }
 }

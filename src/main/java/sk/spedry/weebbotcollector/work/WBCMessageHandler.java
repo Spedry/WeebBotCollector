@@ -18,7 +18,7 @@ public class WBCMessageHandler {
     private final WBCWorkPlace work;
 
     public WBCMessageHandler(Socket socket, WBCWorkPlace work) {
-        logger.trace("Creating Message handler");
+        logger.traceEntry();
         WBCMessageReceiver messageReceiver = new WBCMessageReceiver(socket);
         this.work = work;
         Thread wbcMessageReceiverThread = new Thread(messageReceiver);
@@ -33,9 +33,11 @@ public class WBCMessageHandler {
             e.printStackTrace();
         }
         work.setOut(printWriter);
+        logger.traceExit();
     }
 
     public void messageHandler() {
+        logger.traceEntry();
         loop: while (true) {
             try {
                 WCMessage wcMessage = WCMessageQueue.take();
@@ -95,5 +97,6 @@ public class WBCMessageHandler {
                 e.printStackTrace();
             }
         }
+        logger.traceExit();
     }
 }

@@ -26,6 +26,7 @@ public class WBCApplication {
     }
 
     public void startServer() {
+        logger.traceEntry();
         try {
             logger.trace("Starting server...");
             ServerSocket sSocket = new ServerSocket(port);
@@ -48,5 +49,6 @@ public class WBCApplication {
         } catch (IOException e) {
             logger.error("Starting server", e);
         }
+        logger.traceExit();
     }
 }

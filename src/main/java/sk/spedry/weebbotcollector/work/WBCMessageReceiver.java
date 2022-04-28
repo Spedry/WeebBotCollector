@@ -22,16 +22,19 @@ public class WBCMessageReceiver implements Runnable {
     private LinkedBlockingDeque<WCMessage> messageQueue;
 
     public WBCMessageReceiver(Socket socket) {
+        logger.traceEntry();
         try {
             this.br = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
             this.messageQueue = new LinkedBlockingDeque<WCMessage>();
         } catch (IOException e) {
             logger.error("Get input stream", e);
         }
+        logger.traceExit();
     }
 
     @Override
     public void run() {
+        logger.traceEntry();
         try {
             String data;
             logger.debug("Starting receiving messages");
@@ -44,5 +47,6 @@ public class WBCMessageReceiver implements Runnable {
         } finally {
             messageQueue.add(new WCMessage("clientDisconnected"));
         }
+        logger.traceExit();
     }
 }
