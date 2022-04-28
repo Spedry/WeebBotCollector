@@ -29,6 +29,7 @@ gradle-app.setting
 
 # Log file
 *.log
+*.out
 
 # BlueJ files
 *.ctxt
