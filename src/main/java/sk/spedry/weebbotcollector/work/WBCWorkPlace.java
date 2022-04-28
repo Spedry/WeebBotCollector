@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Iterator;
 
@@ -40,24 +41,29 @@ public class WBCWorkPlace extends WBCMessageSender {
     private final String animeListFile = jsonListFolder + "animeList.json";
 
     public WBCWorkPlace() {
+        logger.traceEntry();
         this.service = new WBCService();
         this.conf = new Configuration();
         startIRCBot(new WCMessage("startIRCBot"));
         logger.debug("Testing if folders exists");
         createFolder(propertiesFolder);
         createFolder(jsonListFolder);
+        logger.traceExit();
     }
 
     public void createFolder(@NonNull String path) {
+        logger.traceEntry(path);
         File directory = new File(path);
         if (!directory.exists()){
             logger.debug("Creating folder: {}", path);
             if(directory.mkdirs())
                 logger.debug("Folder created");
         }
+        logger.traceExit(true);
     }
 
     private JsonArray getJsonArray(@NonNull String pathTo) {
+        logger.traceEntry(pathTo);
         try {
             File file = new File(pathTo);
             if (!file.createNewFile()) {
@@ -83,6 +89,7 @@ public class WBCWorkPlace extends WBCMessageSender {
     }
 
     private JsonObject getJsonObject(String pathTo) {
+        logger.traceEntry(pathTo);
         try {
             File file = new File(pathTo);
             if (!file.createNewFile()) {
@@ -103,10 +110,11 @@ public class WBCWorkPlace extends WBCMessageSender {
         } catch (IOException e) {
             logger.error("Couldn't find the file in given path: " + pathTo, e);
         }
-        return new JsonObject();
+        return logger.traceExit(new JsonObject());
     }
 
     public AnimeList getAnimeList() {
+        logger.traceEntry();
         AnimeList animeList = new AnimeList();
         JsonArray jsonArray = getJsonArray(animeListFile);
         Iterator<JsonElement> iterator = jsonArray.iterator();
@@ -121,19 +129,56 @@ public class WBCWorkPlace extends WBCMessageSender {
     }
 
     public WCMAnime getAnime(int id) {
+        logger.traceEntry(String.valueOf(id));
         for (WCMAnime anime : getAnimeList().getAnimeList()) {
             if (anime.getId() == id)
-                return anime;
+                return logger.traceExit(anime);
         }
+        logger.traceExit(false);
         return null;
     }
 
     public WCMAnime getAnime(String animeName) {
+        logger.traceEntry(animeName);
         for (WCMAnime anime : getAnimeList().getAnimeList()) {
             if (anime.getAnimeName().equals(animeName))
-                return anime;
+                return logger.traceExit(anime);
         }
+        logger.traceExit(false);
         return null;
+    }
+
+    private void searchAlreadyReleased(WCMessage wcMessage, WCMAnime wcmAnime) {
+        logger.traceEntry(wcmAnime.getAnimeName());
+        WCMDownAlrRel downAlrRel = new Gson().fromJson(wcMessage.getAdditionalData(), WCMDownAlrRel.class);
+        if (downAlrRel.isDownload()) {
+            int numberOfEpisodes = downAlrRel.getAlreadyReleasedEp();
+            if (numberOfEpisodes == 0) {
+                logger.warn("TODO");
+                //botCommands.searchAnime(conf.getProperty("searchBot"), wcmAnime.getAnimeName(), [ ,wcmAnime.getTypeOfQuality()]);
+            }
+            else {
+                for (int i = 1; i < numberOfEpisodes + 1; i++) {
+                    try {
+                        //logger.debug(conf.getProperty("searchBot") + " " + wcmAnime.getAnimeName() + " " +  String.valueOf(i) + " " +  wcmAnime.getTypeOfQuality().getName());
+                        String number;
+                        if (i < 10)
+                            number = "0" + i;
+                        else
+                            number = String.valueOf(i);
+                        logger.debug("Cycle to search for already released anime, searching anime {} episode {}", wcmAnime.getAnimeName(), number);
+                        botCommands.searchAnime(conf.getProperty("searchBot"), conf.getProperty("downloadFrom"), wcmAnime.getAnimeName(), number, wcmAnime.getTypeOfQuality().getName());
+                        java.util.concurrent.TimeUnit.SECONDS.sleep(Integer.parseInt(conf.getProperty("waitBeforeSearch")));
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                synchronized (IRCBotListener.class) {
+                    IRCBotListener.class.notify();
+                }
+            }
+        }
+        logger.traceExit();
     }
 
     /**
@@ -143,34 +188,48 @@ public class WBCWorkPlace extends WBCMessageSender {
      */
 
     public void increaseAnimeDownload(@NonNull String animeName) {
-        logger.debug("Increasing number of downloaded episodes of anime {}", animeName);
+        logger.traceEntry(animeName);
         WCMAnime anime = getAnime(animeName);
         assert anime != null;
         anime.increaseNumberOfDownloadedEpisodes();
         saveUpdatedAnime(anime);
         send("setProgress", 0);
+        logger.traceExit(anime.getNumberOfDownloadedEpisodes());
     }
 
     public void setWasDownloaded(@NonNull String animeName, boolean wasDownloaded) {
-        logger.debug("Setting wasDownloaded to {} for anime {}", wasDownloaded, animeName);
+        logger.traceEntry("{} : {}", animeName, wasDownloaded);
         WCMAnime anime = getAnime(animeName);
         assert anime != null;
-        anime.setWasDownloaded(wasDownloaded);
+        if (wasDownloaded) {
+            if (anime.isWasDownloaded())
+                anime.setMissedEpisode(true);
+            else
+                anime.setWasDownloaded(true);
+        }
+        else {
+            anime.setWasDownloaded(false);
+            anime.setMissedEpisode(false);
+        }
         saveUpdatedAnime(anime);
         send("animeList", getAnimeList());
+        logger.traceExit("WasDownloaded" + anime.isWasDownloaded() + "MissedEpisode" + anime.isMissedEpisode());
     }
 
     public void setReleaseDate(@NonNull String animeName) {
-        LocalDate localDate = LocalDate.now();
-        logger.debug("Setting releaseDate to {} for anime {}", localDate, animeName);
+        logger.traceEntry(animeName);
+        DayOfWeek dayOfWeek = LocalDate.now().getDayOfWeek();
+        logger.debug("Setting releaseDate to {} for anime {}", dayOfWeek, animeName);
         WCMAnime anime = getAnime(animeName);
         assert anime != null;
-        anime.setReleaseDate(localDate);
+        anime.setReleaseDay(dayOfWeek);
         saveUpdatedAnime(anime);
         send("animeList", getAnimeList());
+        logger.traceExit(anime.getReleaseDay());
     }
 
-    private void saveUpdatedAnime(WCMAnime anime) {
+    public void saveUpdatedAnime(WCMAnime anime) {
+        logger.traceEntry(anime.getAnimeName());
         try {
             AnimeList animeList = getAnimeList();
             // put file reader after the file was read, file reader will delete it's content
@@ -185,6 +244,7 @@ public class WBCWorkPlace extends WBCMessageSender {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        logger.traceExit();
     }
 
     /**
@@ -210,6 +270,7 @@ public class WBCWorkPlace extends WBCMessageSender {
     }
 
     public void addNewAnimeEntry(WCMessage wcMessage) {
+        logger.traceEntry();
         try {
             AnimeList animeList = getAnimeList();
             // put file reader after the file was read, file reader will delete it's content
@@ -226,38 +287,12 @@ public class WBCWorkPlace extends WBCMessageSender {
             send(wcMessage.getMessageId(), animeList);
 
             if(wcMessage.getAdditionalData() != null) {
-                WCMDownAlrRel downAlrRel = new Gson().fromJson(wcMessage.getAdditionalData(), WCMDownAlrRel.class);
-                if (downAlrRel.isDownload()) {
-                    int numberOfEpisodes = downAlrRel.getAlreadyReleasedEp();
-                    if (numberOfEpisodes == 0) {
-                        logger.warn("TODO");
-                        //botCommands.searchAnime(conf.getProperty("searchBot"), wcmAnime.getAnimeName(), [ ,wcmAnime.getTypeOfQuality()]);
-                    }
-                    else {
-                        for (int i = 1; i < numberOfEpisodes + 1; i++) {
-                            try {
-                                //logger.debug(conf.getProperty("searchBot") + " " + wcmAnime.getAnimeName() + " " +  String.valueOf(i) + " " +  wcmAnime.getTypeOfQuality().getName());
-                                String number;
-                                if (i < 10)
-                                    number = "0" + i;
-                                else
-                                    number = String.valueOf(i);
-                                logger.debug("Cycle to download already released anime, downloading anime {} episode {}", wcmAnime.getAnimeName(), number);
-                                botCommands.searchAnime(conf.getProperty("searchBot"), conf.getProperty("downloadFrom"), wcmAnime.getAnimeName(), number, wcmAnime.getTypeOfQuality().getName());
-                                java.util.concurrent.TimeUnit.SECONDS.sleep(Integer.parseInt(conf.getProperty("waitBeforeSearch")));
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                        synchronized (IRCBotListener.class) {
-                            IRCBotListener.class.notify();
-                        }
-                    }
-                }
+                searchAlreadyReleased(wcMessage, wcmAnime);
             }
         } catch (IOException e) {
             logger.error("File reader: ", e);
         }
+        logger.traceExit();
     }
 
     public void getAnimeList(WCMessage wcMessage) {
@@ -277,6 +312,7 @@ public class WBCWorkPlace extends WBCMessageSender {
     }
 
     public void startIRCBot(WCMessage wcMessage) {
+        logger.traceEntry();
         logger.info("Starting bot");
         WCMSetup setup = conf.getBotSetting();
         if (setup.getUserName() != null &&
@@ -290,15 +326,19 @@ public class WBCWorkPlace extends WBCMessageSender {
             service.createBotThread(this);
             send(wcMessage.getMessageId());
         }
+        logger.traceExit();
     }
 
     public void updateAnime(WCMessage wcMessage) {
+        logger.traceEntry();
         saveUpdatedAnime(new Gson().fromJson(wcMessage.getMessageBody(), WCMAnime.class));
         logger.debug("Saving file: success");
         send("animeList", getAnimeList());
+        logger.traceExit();
     }
 
     public void removeAnimeFromList(WCMessage wcMessage) {
+        logger.traceEntry();
         try {
             AnimeList animeList = getAnimeList();
             FileWriter fileWriter = new FileWriter(animeListFile);
@@ -314,9 +354,11 @@ public class WBCWorkPlace extends WBCMessageSender {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        logger.traceExit();
     }
 
     public void getAnimeToOpen(WCMessage wcMessage) {
+        logger.traceEntry();
         String animeName = new Gson().fromJson(wcMessage.getMessageBody(), String.class);
         File folder = new File(conf.getProperty("downloadFolder") + "/" + animeName);
         logger.debug("Path is: {}", folder.getPath());
@@ -336,6 +378,7 @@ public class WBCWorkPlace extends WBCMessageSender {
         else {
             logger.error("Folder {} at path {} didn't exist", folder.getName(), folder.getPath());
         }
+        logger.traceExit();
     }
     //TODO
     public void getDownloadQueueList(WCMessage wcMessage) {
