@@ -28,37 +28,60 @@ public class Configuration {
     }
 
     public String getProperty(String key) {
-        return properties.getProperty(key);
+        logger.traceEntry(key);
+        return logger.traceExit(properties.getProperty(key));
+    }
+
+    public boolean getBoolProperty(String key) {
+        logger.traceEntry(key);
+        if (properties.getProperty(key).equalsIgnoreCase("true"))
+            return logger.traceExit(true);
+        else
+            return logger.traceExit(false);
+
     }
 
     public void setProperty(String key, String value) {
+        logger.traceEntry("{}={}", key, value);
         properties.setProperty(key, value);
+        logger.traceExit();
     }
 
     /**BOT SETTING**/
     public void setBotSetting(WCMSetup setup) {
+        logger.traceEntry();
         setProperty("userName", setup.getUserName());
         setProperty("downloadFolder", setup.getDownloadFolder());
         setProperty("serverName", setup.getUserName());
         setProperty("channelName", setup.getUserName());
+        logger.traceExit();
     }
 
     public WCMSetup getBotSetting() {
-        return new WCMSetup(
+        logger.traceEntry();
+        return logger.traceExit(new WCMSetup(
                 getProperty("userName"),
                 getProperty("downloadFolder"),
                 getProperty("serverName"),
                 getProperty("channelName")
-        );
+        ));
+    }
+
+    /**RELEASE BOTS LIST**/
+    public List<String> getAlreadyReleasedBotsList() {
+        logger.traceEntry();
+        return logger.traceExit(Arrays.asList(getProperty("alreadyReleasedBots").split(",")));
     }
 
     /**RELEASE BOTS LIST**/
     public List<String> getReleaseBotsList() {
-        return Arrays.asList(getProperty("releaseBots").split(","));
+        logger.traceEntry();
+        return logger.traceExit(Arrays.asList(getProperty("releaseBots").split(",")));
     }
 
     /**GET ALL WHO HAS ACCESS**/
     public List<String> getAllWhoHasAccess() {
+        //TODO ADD TRACE
         String[] allUsersWhoHasAccess = {"searchBot", "releaseBots", "releaseBotsIPv6", "releaseBotsBatch"};
         List<String> list = new ArrayList<String>();
 
