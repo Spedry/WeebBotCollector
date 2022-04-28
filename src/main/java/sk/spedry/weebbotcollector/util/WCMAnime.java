@@ -3,6 +3,7 @@ package sk.spedry.weebbotcollector.util;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 
 public class WCMAnime {
@@ -24,7 +25,10 @@ public class WCMAnime {
     private boolean wasDownloaded;
     @Getter
     @Setter
-    private LocalDate releaseDate;
+    private boolean missedEpisode;
+    @Getter
+    @Setter
+    private DayOfWeek releaseDay;
 
     public void increaseNumberOfDownloadedEpisodes() {
         numberOfDownloadedEpisodes++;
