@@ -41,6 +41,7 @@ public class IRCBot extends ListenerAdapter implements Runnable {
     private String channelName;
 
     public IRCBot(WBCWorkPlace workPlace) {
+        logger.traceEntry();
         /*try {
             inetAddress = InetAddress.getByName("");
         }
@@ -58,11 +59,14 @@ public class IRCBot extends ListenerAdapter implements Runnable {
         botCommands = new IRCBotCommands(bot);
         workPlace.setBotCommands(botCommands);
         addListener();
+        logger.traceExit();
     }
 
     private Configuration configureBot() {
+        logger.traceEntry();
         logger.debug("Configuring bot");
-        return new Configuration.Builder()
+        return logger.traceExit(
+            new Configuration.Builder()
                 .setName(userName)
                 .setAutoNickChange(true)
                 .addServer(serverName)
@@ -84,21 +88,27 @@ public class IRCBot extends ListenerAdapter implements Runnable {
                 // it means that the bot will safely disconnect
                 // from server/channel if thread is shutdown
                 .setShutdownHookEnabled(true)
-                .buildConfiguration();
+                .buildConfiguration()
+        );
     }
 
     private void addListener() {
+        logger.traceEntry();
         bot.getConfiguration().getListenerManager().addListener(new IRCBotListener(workPlace, botCommands));
+        logger.traceExit();
     }
 
     public void closeBot() {
+        logger.traceEntry();
         if (bot.isConnected()) {
             logger.info("Closing bot");
             bot.close();
         }
+        logger.traceExit();
     }
 
     public void resetBot() {
+        logger.traceEntry();
         bot.close();
         try {
             TimeUnit.SECONDS.sleep(5);
@@ -106,10 +116,12 @@ public class IRCBot extends ListenerAdapter implements Runnable {
             e.printStackTrace();
         }
         run();
+        logger.traceExit();
     }
 
     @Override
     public void run() {
+        logger.traceEntry();
         try {
             bot.startBot();
         } catch (IOException e) {
@@ -117,5 +129,6 @@ public class IRCBot extends ListenerAdapter implements Runnable {
         } catch (IrcException e) {
             logger.error("IrcException", e);
         }
+        logger.traceExit();
     }
 }
