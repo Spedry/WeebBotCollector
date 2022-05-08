@@ -487,7 +487,13 @@ public class IRCBotListener extends ListenerAdapter {
                     // Add attempts counter
                     // if n attempts pause for seconds then send OR restart bot
                     logger.error("Download of anime {} didn't start", currentlyDownloading.getAnimeFileName());
-                    fileTransfer.shutdown();
+                    // TODO MORE TESTING
+                    try {
+                        fileTransfer.shutdown();
+                    }
+                    catch (Exception e) {
+                        logger.error("Couldn't shutdown fileTransfer: {}", e.getMessage());
+                    }
                     sendMessage(currentlyDownloading);
                 }
                 logger.trace("Thread to test download ended");
