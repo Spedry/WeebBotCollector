@@ -19,7 +19,7 @@ public class EpisodeNumber {
 
     public EpisodeNumber(String episodeNV) {
         logger.traceEntry(episodeNV);
-        if (episodeNV.length() >= 4) {
+        if (episodeNV.substring(episodeNV.length() - 2, episodeNV.length() - 1).equalsIgnoreCase("v")) {
             episodeNumberString = episodeNV.substring(0, episodeNV.length() - 2);
             episodeNumber = Integer.parseInt(episodeNumberString);
             episodeVersion = episodeNV.substring(episodeNV.length() - 2);
