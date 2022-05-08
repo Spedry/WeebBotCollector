@@ -78,7 +78,6 @@ public class WBCMessageHandler {
                         work.getAlreadyReleasedQueueList(wcMessage);
                         break;
                     case "getCurrentlyDownloading":
-                        //TODO ON CLIENT SIDE
                         work.getCurrentlyDownloadingAnime(wcMessage);
                         break;
 

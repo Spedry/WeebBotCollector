@@ -410,7 +410,7 @@ public class WBCWorkPlace extends WBCMessageSender {
     public void getAlreadyReleasedQueueList(WCMessage wcMessage) {
         send("setAlreadyReleasedQueueList", botCommands.getAlreadyReleasedQueueList());
     }
-    //TODO
+
     public void getCurrentlyDownloadingAnime(WCMessage wcMessage) {
         send("setCurrentlyDownloadingAnime", botCommands.getCurrentlyDownloadingAnime());
     }
