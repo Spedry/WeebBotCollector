@@ -229,8 +229,6 @@ public class IRCBotListener extends ListenerAdapter {
                     logger.debug("This download didn't start onMessage, not actual release date");
                 }
 
-                workPlace.send("setDownloadingAnimeName", "");
-
                 logger.debug("Clearing currently downloading variable");
                 clearCurrentlyDownloading();
 
@@ -252,6 +250,8 @@ public class IRCBotListener extends ListenerAdapter {
                     e.printStackTrace();
                 }
             }
+            
+            workPlace.send("setDownloadingAnimeName", "");
         });
         progressThread.setName("FileTransferStatus");
 
