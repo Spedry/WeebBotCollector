@@ -214,8 +214,8 @@ public class IRCBotListener extends ListenerAdapter {
             }
             // IF FILE TRANSFER WAS SUCCESSFUL
             if (fileTransfer.getFileTransferStatus().isSuccessful()) {
-                logger.debug("Increasing number of downloaded episodes for {}", animeName);
-                workPlace.increaseAnimeDownload(animeName);
+                logger.debug("Setting number of downloaded episodes for {}", animeName);
+                workPlace.updateNumberOfDownloadedEpisodes(animeName);
 
                 logger.debug("Setting wasDownloaded to true for {}", animeName);
                 workPlace.setWasDownloaded(animeName, true);
@@ -439,8 +439,7 @@ public class IRCBotListener extends ListenerAdapter {
             File file = new File(workPlace.getConf().getProperty("downloadFolder") + "/" + alreadyReleased.getAnimeFolderName());
 
             if (Objects.requireNonNull(file.list()).length > workPlace.getAnime(alreadyReleased.getAnimeFolderName()).getNumberOfDownloadedEpisodes()) {
-                // TODO REWORK (Change it to represent current number of files/episodes in folder)
-                workPlace.increaseAnimeDownload(alreadyReleased.getAnimeFolderName());
+                workPlace.updateNumberOfDownloadedEpisodes(alreadyReleased.getAnimeFolderName());
             }
             else {
                 logger.debug("Anime downloaded episodes ({}) => ({}) anime in folder",

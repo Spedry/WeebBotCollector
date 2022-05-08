@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Iterator;
+import java.util.Objects;
 
 public class WBCWorkPlace extends WBCMessageSender {
 
@@ -192,6 +193,27 @@ public class WBCWorkPlace extends WBCMessageSender {
         WCMAnime anime = getAnime(animeName);
         assert anime != null;
         anime.increaseNumberOfDownloadedEpisodes();
+        saveUpdatedAnime(anime);
+        send("setProgress", 0);
+        logger.traceExit(anime.getNumberOfDownloadedEpisodes());
+    }
+
+    public void updateNumberOfDownloadedEpisodes(String animeName) {
+        logger.traceEntry(animeName);
+        WCMAnime anime = getAnime(animeName);
+        assert anime != null;
+        File folder = new File(conf.getProperty("downloadFolder") + "/" + animeName);
+        logger.debug("Path is: {}", folder.getPath());
+        if (folder.exists()) {
+            int tempNumberOfEpInFolder = Objects.requireNonNull(folder.listFiles()).length;
+            logger.debug("Setting number of downloaded EP for anime {} to {}", animeName, tempNumberOfEpInFolder);
+            anime.setNumberOfDownloadedEpisodes(tempNumberOfEpInFolder);
+        }
+        else {
+            logger.error("Folder {} at path {} didn't exist", folder.getName(), folder.getPath());
+            logger.warn("Increasing number of episodes by +1");
+            anime.increaseNumberOfDownloadedEpisodes();
+        }
         saveUpdatedAnime(anime);
         send("setProgress", 0);
         logger.traceExit(anime.getNumberOfDownloadedEpisodes());

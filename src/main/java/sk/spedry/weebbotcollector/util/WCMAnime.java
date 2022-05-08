@@ -19,6 +19,7 @@ public class WCMAnime {
     @Getter
     private int numberOfEpisodes;
     @Getter
+    @Setter
     private int numberOfDownloadedEpisodes;
     @Getter
     @Setter
