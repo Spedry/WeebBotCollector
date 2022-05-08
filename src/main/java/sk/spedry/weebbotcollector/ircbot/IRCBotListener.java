@@ -71,7 +71,7 @@ public class IRCBotListener extends ListenerAdapter {
                     logger.debug("Waiting ended");
                     if (!alreadyReleasedQueue.isEmpty()) {
                         logger.debug("Removing older versions");
-                        ArrayList<DownloadMessage> tempAlreadyReleasedQueue = new ArrayList<DownloadMessage>(alreadyReleasedQueue);
+                        ArrayList<DownloadMessage> tempAlreadyReleasedQueue = new ArrayList<>(alreadyReleasedQueue);
                             for (DownloadMessage downloadMessage1 : tempAlreadyReleasedQueue) {
                                 for (DownloadMessage downloadMessage2 : tempAlreadyReleasedQueue) {
                                     if (downloadMessage1.getEpisodeNumber().getEpisodeNumber() == downloadMessage2.getEpisodeNumber().getEpisodeNumber()) {
@@ -126,13 +126,13 @@ public class IRCBotListener extends ListenerAdapter {
             logger.traceEntry(event.getMessage());
         else
             logger.traceEntry();
-        processMessage(event.getUser(), event.getMessage());
+        processMessage(Objects.requireNonNull(event.getUser()), event.getMessage());
         logger.traceExit();
     }
     // PRIVATE MSG LIKE FROM MY SELF
     @Override
     public void onPrivateMessage(PrivateMessageEvent event) {
-        logger.traceEntry("From: {} : {}", event.getUser().toString(), event.getMessage());
+        logger.traceEntry("From: {} : {}", Objects.requireNonNull(event.getUser()).toString(), event.getMessage());
         // DONT ADD
         if (!Objects.requireNonNull(event.getUser()).toString().toLowerCase().contains("spedry"))
             return;
