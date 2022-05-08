@@ -5,22 +5,22 @@ import org.apache.logging.log4j.Logger;
 import sk.spedry.weebbotcollector.ircbot.util.DownloadMessage;
 import sk.spedry.weebbotcollector.ircbot.util.SplitAlreadyReleased;
 import sk.spedry.weebbotcollector.ircbot.util.SplitNewRelease;
-import sk.spedry.weebbotcollector.work.WBCWorkPlace;
 
 import java.io.File;
-import java.util.ArrayList;
 
-public class testFunctions extends IRCBotListener {
+public class testFunctions {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    public testFunctions(WBCWorkPlace workPlace, IRCBotCommands botCommands) {
-        super(workPlace, botCommands);
+    private final IRCBotListener botListener;
+
+    public testFunctions(IRCBotListener botListener) {
+        this.botListener = botListener;
     }
 
     public boolean testIfBotIsAllowed(SplitAlreadyReleased alreadyReleased) {
         logger.traceEntry();
-        for (String alreadyReleasedBotName : getWorkPlace().getConf().getAlreadyReleasedBotsList()) {
+        for (String alreadyReleasedBotName : botListener.getWorkPlace().getConf().getAlreadyReleasedBotsList()) {
             logger.debug("AlreadyReleasedBotName: {} vs. downloadMsg: {}", alreadyReleasedBotName, alreadyReleased.getDownloadMessage().getBotName());
             if (alreadyReleased.getDownloadMessage().getBotName().equalsIgnoreCase(alreadyReleasedBotName)) {
                 return logger.traceExit(true);
@@ -56,7 +56,7 @@ public class testFunctions extends IRCBotListener {
         logger.debug(animeName);
         logger.debug(animeQuality);
 
-        File folder = new File(getWorkPlace().getConf().getProperty("downloadFolder") + "/" + animeFolderName);
+        File folder = new File(botListener.getWorkPlace().getConf().getProperty("downloadFolder") + "/" + animeFolderName);
         File[] listOfFiles = folder.listFiles();
         assert listOfFiles != null;
         logger.debug("Testing if anime is inside folder was downloaded");
@@ -81,7 +81,7 @@ public class testFunctions extends IRCBotListener {
 
     public boolean testIfAnimeIsInReleaseQueue(SplitAlreadyReleased alreadyReleased) {
         logger.traceEntry();
-        for (DownloadMessage downloadMessage : getAlreadyReleasedQueue()) {
+        for (DownloadMessage downloadMessage : botListener.getAlreadyReleasedQueue()) {
             if (downloadMessage.getAnimeFileName().equals(alreadyReleased.getDownloadMessage().getAnimeFileName())) {
                 logger.warn("This anime {}, is already in release queue", alreadyReleased.getAnimeName());
                 return logger.traceExit( true);
@@ -92,7 +92,7 @@ public class testFunctions extends IRCBotListener {
 
     public boolean testIfAnimeIsInDownloadQueue(SplitNewRelease newRelease) {
         logger.traceEntry();
-        for (DownloadMessage downloadMessage : getDownloadQueue()) {
+        for (DownloadMessage downloadMessage : botListener.getDownloadQueue()) {
             if (downloadMessage.getAnimeFileName().equals(newRelease.getDownloadMessage().getAnimeFileName())) {
                 logger.info("This anime {}, is already in download queue", newRelease.getAnimeName());
                 return logger.traceExit( true);
@@ -103,7 +103,7 @@ public class testFunctions extends IRCBotListener {
 
     public boolean testIfAnimeIsNotCurrentlyBeingDownloaded(SplitNewRelease newRelease) {
         logger.traceEntry();
-        if (getCurrentlyDownloading() != null && newRelease.getAnimeName().contains(getCurrentlyDownloading().getAnimeFileName())) {
+        if (botListener.getCurrentlyDownloading() != null && newRelease.getAnimeName().contains(botListener.getCurrentlyDownloading().getAnimeFileName())) {
             //TODO IF EXISTING FILE < ACTUAL FILE SIZE
             logger.debug("This anime {}, is currently being downloaded", newRelease.getAnimeName());
             return logger.traceExit( true);
