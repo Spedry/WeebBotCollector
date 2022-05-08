@@ -60,7 +60,7 @@ public class IRCBotListener extends ListenerAdapter {
         this.botCommands = botCommands;
         botCommands.setBotListener(this);
         this.botWorkPlace = new IRCBotWorkPlace(workPlace);
-        this.testFunctions = new testFunctions(workPlace, botCommands);
+        this.testFunctions = new testFunctions(this);
         downloadAllInAlreadyReleasedQueue = new Thread(() -> {
             try {
                 while (true) {
