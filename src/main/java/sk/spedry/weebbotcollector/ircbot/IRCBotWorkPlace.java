@@ -2,11 +2,7 @@ package sk.spedry.weebbotcollector.ircbot;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import sk.spedry.weebbotcollector.ircbot.util.SplitAlreadyReleased;
-import sk.spedry.weebbotcollector.ircbot.util.SplitNewRelease;
 import sk.spedry.weebbotcollector.work.WBCWorkPlace;
-
-import java.io.File;
 
 public class IRCBotWorkPlace {
 
