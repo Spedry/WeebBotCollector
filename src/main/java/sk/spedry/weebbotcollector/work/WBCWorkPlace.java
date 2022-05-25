@@ -412,7 +412,10 @@ public class WBCWorkPlace extends WBCMessageSender {
     }
 
     public void getCurrentlyDownloadingAnime(WCMessage wcMessage) {
-        send("setCurrentlyDownloadingAnime", botCommands.getCurrentlyDownloadingAnime());
+        if (botCommands.getCurrentlyDownloadingAnime() != null)
+            send("setCurrentlyDownloadingAnime", botCommands.getCurrentlyDownloadingAnime().getAnimeFileName());
+        else
+            send("setCurrentlyDownloadingAnime", "");
     }
 
     public void setWasDownloaded(WCMessage wcMessage) {

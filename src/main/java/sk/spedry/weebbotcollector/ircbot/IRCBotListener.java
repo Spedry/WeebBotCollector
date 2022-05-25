@@ -44,7 +44,7 @@ public class IRCBotListener extends ListenerAdapter {
     private final ArrayList<DownloadMessage> alreadyReleasedQueue = new ArrayList<>();
     public static Thread downloadAllInAlreadyReleasedQueue;
     private ReceiveFileTransfer fileTransfer;
-    private testFunctions testFunctions;
+    private final testFunctions testFunctions;
 
     // BOT SETTINGS
     @Setter
@@ -198,7 +198,7 @@ public class IRCBotListener extends ListenerAdapter {
         // THREAD THAT WILL KEEP AN EYE ON DOWNLOAD
         Thread progressThread = new Thread(() -> {
             // TELL CLIENT THAT THIS ANIME IS BEING DOWNLOADED
-            workPlace.send("setDownloadingAnimeName", animeName);
+            workPlace.send("setCurrentlyDownloadingAnime", animeName);
             // CYCLE TO INFORM CLIENT ABOUT DOWNLOAD PROGRESS
             while (!fileTransfer.getFileTransferStatus().isFinished()) {
                 try {
@@ -251,7 +251,7 @@ public class IRCBotListener extends ListenerAdapter {
                 }
             }
             
-            workPlace.send("setDownloadingAnimeName", "");
+            workPlace.send("setCurrentlyDownloadingAnime", "");
         });
         progressThread.setName("FileTransferStatus");
 
@@ -283,7 +283,7 @@ public class IRCBotListener extends ListenerAdapter {
         final String receivedMessage = message.toLowerCase();
         final String userName = user.getNick();
 
-        logger.debug("Received message: " + receivedMessage);
+        //logger.debug("Received message: " + receivedMessage);
 
         // MATCH SEARCH BOT
         if (userName.equals(workPlace.getConf().getProperty("searchBot"))) {
