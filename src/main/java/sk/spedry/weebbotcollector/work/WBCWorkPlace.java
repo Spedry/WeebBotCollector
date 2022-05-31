@@ -19,6 +19,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Objects;
 
@@ -388,6 +390,9 @@ public class WBCWorkPlace extends WBCMessageSender {
             File[] listOfFiles = folder.listFiles();
             String animeToOpen;
             assert listOfFiles != null;
+
+            Arrays.sort(listOfFiles, Comparator.comparingLong(File::lastModified));
+
             for (File listOfFile : listOfFiles) {
                 if (listOfFile.isFile()) {
                     System.out.println("File " + listOfFile.getName());
