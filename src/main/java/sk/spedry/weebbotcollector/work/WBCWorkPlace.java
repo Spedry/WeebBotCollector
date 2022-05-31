@@ -386,16 +386,20 @@ public class WBCWorkPlace extends WBCMessageSender {
         logger.debug("Path is: {}", folder.getPath());
         if (folder.exists()) {
             File[] listOfFiles = folder.listFiles();
-
-            /*for (int i = 0; i < listOfFiles.length; i++) {
-                if (listOfFiles[i].isFile()) {
-                    System.out.println("File " + listOfFiles[i].getName());
-                } else if (listOfFiles[i].isDirectory()) {
-                    System.out.println("Directory " + listOfFiles[i].getName());
-                }
-            }*/
+            String animeToOpen;
             assert listOfFiles != null;
-            send("setAnimeToOpen", animeName + "/" + listOfFiles[listOfFiles.length-1].getName());
+            for (File listOfFile : listOfFiles) {
+                if (listOfFile.isFile()) {
+                    System.out.println("File " + listOfFile.getName());
+                } else if (listOfFile.isDirectory()) {
+                    System.out.println("Directory " + listOfFile.getName());
+                }
+            }
+
+            animeToOpen = listOfFiles[listOfFiles.length-1].getName();
+            logger.info("Anime to open is {}", animeToOpen);
+
+            send("setAnimeToOpen", animeName + "/" + animeToOpen);
         }
         else {
             logger.error("Folder {} at path {} didn't exist", folder.getName(), folder.getPath());
