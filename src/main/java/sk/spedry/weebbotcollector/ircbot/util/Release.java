@@ -22,10 +22,10 @@ public class Release {
         logger.traceExit("DownloadMessage : {}",message);
     }
 
-    public void setAnimeFolderName(@NonNull AnimeList animeList, String animeName) {
-        logger.traceEntry(animeName);
+    public void setAnimeFolderName(@NonNull AnimeList animeList, String animeFileName) {
+        logger.traceEntry(animeFileName);
         for (WCMAnime anime : animeList.getAnimeList()) {
-            if (animeName.contains(anime.getAnimeName().toLowerCase())) {
+            if (animeFileName.contains(anime.getAnimeName().toLowerCase())) {
                 animeFolderName = anime.getAnimeName();
             }
         }

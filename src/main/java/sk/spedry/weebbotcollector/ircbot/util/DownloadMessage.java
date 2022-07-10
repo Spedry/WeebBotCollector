@@ -17,9 +17,9 @@ public class DownloadMessage {
     @Getter
     private final String message;
     @Getter
-    private String animeFileName;
+    private String animeFileName; // lowercase
     @Getter
-    private String animeName;
+    private String animeName; // Case Sensitive
     @Getter
     private String animeQuality;
     @Getter
@@ -43,7 +43,7 @@ public class DownloadMessage {
         String[] spliced = message.split(" ");
         this.botName = spliced[1];
         this.message = spliced[2] + " " + spliced[3] + " " + spliced[4];
-        this.animeFileName = animeFileName;
+        this.animeFileName = animeFileName.toLowerCase();
         setEpisodeNumber();
         setAnimeName();
         setAnimeQuality();
@@ -55,7 +55,7 @@ public class DownloadMessage {
         this.wholeMessage = "/msg " + botName + " " + message;
         this.botName = botName;
         this.message = message;
-        this.animeFileName = animeFileName;
+        this.animeFileName = animeFileName.toLowerCase();
         setEpisodeNumber();
         setAnimeName();
         setAnimeQuality();
@@ -72,15 +72,14 @@ public class DownloadMessage {
     public void setAnimeName() {
         logger.traceEntry();
         String[] spliced = animeFileName.split(" ");
-        String animeName = spliced[0];
+        StringBuilder animeName = new StringBuilder(spliced[0]);
         for (int i = 1; i < spliced.length-4; i++) {
-            animeName = animeName + " " + spliced[i];
+            animeName.append(" ").append(spliced[i]);
         }
-        animeName = animeName + " - " + episodeNumber.getEpisodeNumberString();
-        animeName = animeName.substring(animeName.indexOf("[subsplease]"));
-        System.out.println(animeName);
-        this.animeName = animeName;
-        logger.traceExit(animeName);
+        animeName.append(" - ").append(episodeNumber.getEpisodeNumberString());
+        animeName = new StringBuilder(animeName.substring(animeName.indexOf("[subsplease]")));
+        this.animeName = animeName.toString();
+        logger.traceExit(animeName.toString());
     }
 
     public void setAnimeQuality() {

@@ -13,8 +13,6 @@ public class SplitNewRelease extends Release {
     @Getter
     private final String size;
     @Getter
-    private final String animeName;
-    @Getter
     private final DownloadMessage downloadMessage;
 
     public SplitNewRelease(String message) {
@@ -23,9 +21,9 @@ public class SplitNewRelease extends Release {
         String[] spliced = message.split("\\*");
         this.info = spliced[0].trim();
         this.size = spliced[1].trim();
-        this.animeName = spliced[2].trim();
-        this.downloadMessage = new DownloadMessage(spliced[3].trim(), animeName);
-        logger.traceExit(animeName);
+        String animeFileName = spliced[2].trim();
+        this.downloadMessage = new DownloadMessage(spliced[3].trim(), animeFileName);
+        logger.traceExit(animeFileName);
     }
 
 }

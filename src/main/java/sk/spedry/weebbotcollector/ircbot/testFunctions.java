@@ -83,7 +83,7 @@ public class testFunctions {
         logger.traceEntry();
         for (DownloadMessage downloadMessage : botListener.getAlreadyReleasedQueue()) {
             if (downloadMessage.getAnimeFileName().equals(alreadyReleased.getDownloadMessage().getAnimeFileName())) {
-                logger.warn("This anime {}, is already in release queue", alreadyReleased.getAnimeName());
+                logger.warn("This anime {}, is already in release queue", alreadyReleased.getDownloadMessage().getAnimeFileName());
                 return logger.traceExit( true);
             }
         }
@@ -94,7 +94,7 @@ public class testFunctions {
         logger.traceEntry();
         for (DownloadMessage downloadMessage : botListener.getDownloadQueue()) {
             if (downloadMessage.getAnimeFileName().equals(newRelease.getDownloadMessage().getAnimeFileName())) {
-                logger.info("This anime {}, is already in download queue", newRelease.getAnimeName());
+                logger.info("This anime {}, is already in download queue", newRelease.getDownloadMessage().getAnimeFileName());
                 return logger.traceExit( true);
             }
         }
@@ -103,9 +103,9 @@ public class testFunctions {
 
     public boolean testIfAnimeIsNotCurrentlyBeingDownloaded(SplitNewRelease newRelease) {
         logger.traceEntry();
-        if (botListener.getCurrentlyDownloading() != null && newRelease.getAnimeName().contains(botListener.getCurrentlyDownloading().getAnimeFileName())) {
+        if (botListener.getCurrentlyDownloading() != null && newRelease.getDownloadMessage().getAnimeFileName().contains(botListener.getCurrentlyDownloading().getAnimeFileName())) {
             //TODO IF EXISTING FILE < ACTUAL FILE SIZE
-            logger.debug("This anime {}, is currently being downloaded", newRelease.getAnimeName());
+            logger.debug("This anime {}, is currently being downloaded", newRelease.getDownloadMessage().getAnimeFileName());
             return logger.traceExit( true);
         }
         return logger.traceExit( false);
