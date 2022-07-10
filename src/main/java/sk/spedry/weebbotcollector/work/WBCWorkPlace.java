@@ -184,6 +184,87 @@ public class WBCWorkPlace extends WBCMessageSender {
         logger.traceExit();
     }
 
+    private void backupAnimeListFile(@NonNull String pathToStoreCopy, @NonNull String pathToOriginalFile) {
+        logger.traceEntry("Backup {}", pathToOriginalFile);
+        try {
+            if (new File(pathToOriginalFile).length() != 0) {
+                Path copied = Paths.get(pathToStoreCopy);
+                Path originalPath = Paths.get(pathToOriginalFile);
+                Files.copy(originalPath, copied, StandardCopyOption.REPLACE_EXISTING);
+
+                if (testIfFileExists(pathToStoreCopy)) {
+                    if (testIfFilesAreEqual(pathToStoreCopy, pathToOriginalFile)) {
+                        logger.traceExit("Files are equal");
+                    } else {
+                        logger.traceExit("Files aren't equal");
+                    }
+                }
+            }
+            else {
+                logger.traceExit("Files aren't equal");
+                throw new Exception();
+            }
+        } catch (IOException e) {
+            logger.error("Couldn't copy animeList file: {}", e.toString());
+        } catch (Exception e) {
+            logger.error("File wasn't backed up because original file {} was empty", pathToOriginalFile);
+        }
+    }
+
+    private boolean testIfFileExists(@NonNull String pathTo) {
+        logger.traceEntry("Test if file {} exists", pathTo);
+        File f = new File(pathTo);
+        if(f.exists() && !f.isDirectory()) {
+            return logger.traceExit(true);
+        }
+        return logger.traceExit(false);
+    }
+
+    private boolean testIfFilesAreEqual(@NonNull String file1, @NonNull String file2) {
+        logger.traceEntry("Compare {} with {}", file1, file2);
+        try {
+            Path filePath1 = Paths.get(file1);
+            Path filePath2 = Paths.get(file2);
+
+            long mismatch = Files.mismatch(filePath1, filePath2);
+
+            if (mismatch == -1) {
+                logger.debug("Files ({} and {}) are equal",file1, file2);
+                return logger.traceExit(true);
+            }
+            else {
+                throw new Exception();
+            }
+
+        } catch (IOException e) {
+            logger.error("Couldn't mismatch files: {}", e.toString());
+        } catch (Exception e) {
+            logger.error("Files ({} and {}) aren't equal", file1, file2);
+        }
+        return logger.traceExit(false);
+    }
+
+    private void saveUpdatedAnime(WCMAnime anime) {
+        logger.traceEntry(anime.getAnimeName());
+        try {
+            // backup file before anything
+            if (conf.getBoolProperty("isBcup"))
+                backupAnimeListFile(copyOfAnimeListFile, animeListFile);
+            AnimeList animeList = getAnimeList();
+            // put file reader after the file was read, file reader will delete it's content
+            FileWriter fileWriter = new FileWriter(animeListFile);
+            // edit existing anime in the list
+            animeList.updateAnime(anime.getId(), anime);
+            logger.debug("Update anime entry with id: {}", anime.getId());
+            // save content of the list into file
+            new Gson().toJson(animeList, fileWriter);
+            fileWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        logger.traceExit();
+    }
+
     /**
      * Methods that communicate with client
      * all ends with sendMessage();
@@ -296,6 +377,9 @@ public class WBCWorkPlace extends WBCMessageSender {
     public void addNewAnimeEntry(WCMessage wcMessage) {
         logger.traceEntry();
         try {
+            // backup file before anything
+            if (conf.getBoolProperty("isBcup"))
+                backupAnimeListFile(copyOfAnimeListFile, animeListFile);
             AnimeList animeList = getAnimeList();
             // put file reader after the file was read, file reader will delete it's content
             FileWriter fileWriter = new FileWriter(animeListFile);
@@ -364,6 +448,9 @@ public class WBCWorkPlace extends WBCMessageSender {
     public void removeAnimeFromList(WCMessage wcMessage) {
         logger.traceEntry();
         try {
+            // backup file before anything
+            if (conf.getBoolProperty("isBcup"))
+                backupAnimeListFile(copyOfAnimeListFile, animeListFile);
             AnimeList animeList = getAnimeList();
             FileWriter fileWriter = new FileWriter(animeListFile);
             animeList.removeAnime(new Gson().fromJson(wcMessage.getMessageBody(), WCMAnime.class).getId());
