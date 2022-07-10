@@ -46,6 +46,7 @@ public class WBCWorkPlace extends WBCMessageSender {
     private final String jsonListFolder = propertiesFolder + "jsonListFolder/";
     @Getter
     private final String animeListFile = jsonListFolder + "animeList.json";
+    private final String copyOfAnimeListFile = jsonListFolder + "animeListCopy.json";
 
     public WBCWorkPlace() {
         logger.traceEntry();
