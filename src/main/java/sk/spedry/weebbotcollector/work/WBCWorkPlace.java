@@ -133,7 +133,7 @@ public class WBCWorkPlace extends WBCMessageSender {
             wcmAnime.setId(pos++);
             animeList.addAnime(wcmAnime);
         }
-        return animeList;
+        return logger.traceExit(animeList);
     }
 
     public WCMAnime getAnime(int id) {
@@ -439,7 +439,7 @@ public class WBCWorkPlace extends WBCMessageSender {
             service.createBotThread(this);
             send(wcMessage.getMessageId());
         }
-        logger.traceExit();
+        logger.traceExit(service.isBotRunning());
     }
 
     public void updateAnime(WCMessage wcMessage) {
