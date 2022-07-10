@@ -50,4 +50,14 @@ public class WBCService {
         bot.resetBot();
         logger.traceExit();
     }
+
+    public boolean isBotRunning() {
+        if (bot.getBot() != null) {
+            return bot.getBot().isConnected();
+        }
+        else {
+            logger.error("Bot is null!!!");
+            return false;
+        }
+    }
 }
