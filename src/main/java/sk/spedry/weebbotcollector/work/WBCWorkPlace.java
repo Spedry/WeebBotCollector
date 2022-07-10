@@ -338,24 +338,6 @@ public class WBCWorkPlace extends WBCMessageSender {
         logger.traceExit(anime.getReleaseDay());
     }
 
-    public void saveUpdatedAnime(WCMAnime anime) {
-        logger.traceEntry(anime.getAnimeName());
-        try {
-            AnimeList animeList = getAnimeList();
-            // put file reader after the file was read, file reader will delete it's content
-            FileWriter fileWriter = new FileWriter(animeListFile);
-            // edit existing anime in the list
-            animeList.updateAnime(anime.getId(), anime);
-            logger.debug("Update anime entry with id: {}", anime.getId());
-            // save content of the list into file
-            new Gson().toJson(animeList, fileWriter);
-            fileWriter.close();
-            send("editAnimeEntry", getAnimeList());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        logger.traceExit();
-    }
 
     /**
      * Methods that communicate with client
@@ -467,6 +449,7 @@ public class WBCWorkPlace extends WBCMessageSender {
             // save content of the list into file
             new Gson().toJson(animeList, fileWriter);
             fileWriter.close();
+            send("animeList", getAnimeList());
         } catch (IOException e) {
             e.printStackTrace();
         }
